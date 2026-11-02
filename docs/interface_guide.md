@@ -6,6 +6,7 @@
 
 - ReplayAdapter：读取已存在 CSV。回放数据不代表对新命令产生的物理响应。
 - IsaacAdapter：默认检查并调用 NVIDIA 6.1.0 文档 API，只发送仿真位置目标并读取位置/速度。报告记录实际版本和构建信息。不会把广义关节约束力当作已分离的电机驱动力矩输出。
+- OpenArmReadOnlyAdapter：调用已安装官方 codec 做状态查询与原始电机反馈采集；无运动接口，左右/零位未经独立确认时保留为 motor telemetry。详见 [OpenArm 验证](openarm_validation.md)。
 
 ## 厂家 SDK 适配器
 

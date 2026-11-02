@@ -90,6 +90,23 @@ class IsaacAdapter:
             if not scene:
                 raise InputError("Select an existing PhysicsScene; no replacement scene is created")
             expected_gravity = np.asarray(scene.GetGravityDirectionAttr().Get()) * number(scene.GetGravityMagnitudeAttr().Get())
+            self.rigid_view = None
+            observed_names = config.get("observe_rigid_bodies", [])
+            if observed_names:
+                if not self.modern or len(set(observed_names)) != len(observed_names):
+                    raise InputError("Unique rigid-body observations require the 6.1.0 adapter")
+                from isaacsim.core.experimental.prims import RigidPrim
+                body_paths = {}
+                for prim in stage.Traverse():
+                    if prim.HasAPI(UsdPhysics.RigidBodyAPI) and prim.GetName() in observed_names:
+                        if prim.GetName() in body_paths:
+                            raise InputError("Ambiguous observed rigid-body name")
+                        body_paths[prim.GetName()] = str(prim.GetPath())
+                if set(body_paths) != set(observed_names):
+                    raise InputError("Missing observed rigid-body prim")
+                # RigidPrim can author required PhysX APIs. Do this BEFORE the
+                # simulation creates tensor views, otherwise edits invalidate them.
+                self.rigid_view = RigidPrim(paths=[body_paths[n] for n in observed_names])
             if self.modern:
                 from isaacsim.core.experimental.prims import Articulation
                 self.manager = SimulationManager

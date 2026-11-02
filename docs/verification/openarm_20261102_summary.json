@@ -1,0 +1,131 @@
+{
+  "status": "software_validation_pass",
+  "data_kind": "nominal_model",
+  "hardware_status": "transport_ready_motor_feedback_captured_coordinates_unverified",
+  "is_real_robot_acceptance": false,
+  "hardware_control_commands_sent": false,
+  "runtime_info": {
+    "isaac_sim_version": "6.1.0",
+    "expected_isaac_sim_version": "6.1.0",
+    "isaac_sim_build": [
+      "6.1.0",
+      "rc.26",
+      "6",
+      "1",
+      "0",
+      "rc",
+      "26",
+      "release.49347.2d230af4.gl"
+    ],
+    "api_family": "6.1.0 experimental",
+    "physics_scene": "/World/PhysicsScene",
+    "physics_dt_s": 0.004166666666666667,
+    "gravity_m_s2": [
+      0.0,
+      0.0,
+      -0.0
+    ],
+    "dof_names": [
+      "openarm_left_joint1",
+      "openarm_right_joint1",
+      "openarm_left_joint2",
+      "openarm_right_joint2",
+      "openarm_left_joint3",
+      "openarm_right_joint3",
+      "openarm_left_joint4",
+      "openarm_right_joint4",
+      "openarm_left_joint5",
+      "openarm_right_joint5",
+      "openarm_left_joint6",
+      "openarm_right_joint6",
+      "openarm_left_joint7",
+      "openarm_right_joint7",
+      "openarm_left_finger_joint1",
+      "openarm_left_finger_joint2",
+      "openarm_right_finger_joint1",
+      "openarm_right_finger_joint2"
+    ]
+  },
+  "poses": 33,
+  "links_per_pose": 21,
+  "metrics": {
+    "position_m": {
+      "n": 693,
+      "rmse": 2.911871655282925e-07,
+      "mae": 2.788624258858445e-07,
+      "mean": 2.788624258858445e-07,
+      "max_abs": 4.7595431527035514e-07,
+      "p95_abs": 3.833446575183566e-07
+    },
+    "orientation_rad": {
+      "n": 693,
+      "rmse": 3.7020683720015065e-07,
+      "mae": 3.406474911699023e-07,
+      "mean": 3.406474911699023e-07,
+      "max_abs": 7.447148736372662e-07,
+      "p95_abs": 5.499823537966874e-07
+    }
+  },
+  "scope": "Source-model reproduction, static USD consistency and FK vs PhysX tensor poses; no physical calibration",
+  "real_motor_feedback": {
+    "samples": 48,
+    "motors": 16,
+    "mapping_review_required": [],
+    "calibrated_joint_coordinates": false
+  },
+  "arm_feedback_in_simulation": {
+    "poses": 3,
+    "links_per_pose": 21,
+    "status": "simulation_pass",
+    "metrics": {
+      "position_m": {
+        "n": 63,
+        "rmse": 2.434934127484039e-07,
+        "mae": 2.2888178859249393e-07,
+        "mean": 2.2888178859249393e-07,
+        "max_abs": 3.407429250992437e-07,
+        "p95_abs": 3.3512868785456933e-07
+      },
+      "orientation_rad": {
+        "n": 63,
+        "rmse": 2.598208236484713e-07,
+        "mae": 2.3471949336498095e-07,
+        "mean": 2.3471949336498095e-07,
+        "max_abs": 4.327593834472521e-07,
+        "p95_abs": 3.9045463785595013e-07
+      }
+    },
+    "gripper_physical_alignment_verified": false
+  },
+  "can_diagnostic": {
+    "states_after": {
+      "can0": "ERROR-ACTIVE",
+      "can1": "ERROR-ACTIVE"
+    },
+    "received_frame_count": 16,
+    "state_query_frames_sent": 16,
+    "responding_motor_ids": {
+      "can0": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "can1": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  },
+  "ros_domain_42_joint_state_source": "not_present_during_probe; used official motor codec directly"
+}

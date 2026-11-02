@@ -12,6 +12,7 @@ from core.provenance import basis
 
 COMMANDS = {
     "preflight": ("common.preflight", "检查软件、资料和 SDK 条件"),
+    "check-openarm": ("common.check_openarm", "检查 OpenArm CAN 状态；可选非运动状态查询"),
     "prepare-inputs": ("common.prepare_inputs", "整理现有 ZIP 并生成未确认参数主表"),
     "validate-structure": ("stage_01_definition.validate_structure", "检查结构及参数定义"),
     "build-urdf": ("stage_01_definition.build_urdf", "生成 URDF 模型包"),
@@ -23,6 +24,7 @@ COMMANDS = {
     "validate-kinematics": ("stage_02_kinematics.validate_kinematics", "用独立数据验证位姿误差"),
     "build-isaac-asset": ("stage_03_isaac_dynamics.build_isaac_asset", "调用 NVIDIA Isaac Sim 6.1.0 导入 API"),
     "validate-isaac-asset": ("stage_03_isaac_dynamics.validate_isaac_asset", "检查 USD/URDF 静态一致性"),
+    "validate-runtime-kinematics": ("stage_03_isaac_dynamics.validate_runtime_kinematics", "比较工具包 FK 与 Isaac 实际连杆位姿；仅仿真"),
     "run-nvidia-sysid": ("stage_03_isaac_dynamics.run_nvidia_sysid", "调用 NVIDIA 官方 System Identification 工具"),
     "identify-dynamics": ("stage_03_isaac_dynamics.identify_dynamics", "项目 RNEA/关节摩擦拟合"),
     "tune-drives": ("stage_03_isaac_dynamics.tune_drives", "从独立 PD 力矩分量拟合力驱动增益"),
@@ -47,6 +49,12 @@ def parser():
         if command == "preflight":
             option("sources")
             option("require_isaac", action="store_true")
+        elif command == "check-openarm":
+            option("interfaces", nargs="+", default=["can0", "can1"])
+            option("listen_seconds", type=float, default=2)
+            option("query_state", action="store_true")
+            option("probe_warning", action="store_true", help="Allow a bounded ID 1..8 diagnostic on ERROR-WARNING interfaces; abort on ERROR-PASSIVE/BUS-OFF")
+            option("raw_frames", default="outputs/openarm/raw_frames.json")
         elif command == "prepare-inputs":
             option("archive", required=True)
             option("destination", default="inputs/baseline_model")
@@ -94,6 +102,9 @@ def parser():
         elif command == "validate-isaac-asset":
             for name in ("urdf", "stage", "acceptance"):
                 option(name, required=True)
+        elif command == "validate-runtime-kinematics":
+            for name in ("urdf", "stage", "config", "acceptance", "errors_csv"):
+                option(name, required=True)
         elif command == "run-nvidia-sysid":
             option("config", required=True)
             option("execute", action="store_true")
@@ -116,7 +127,7 @@ def main(argv=None):
     args = parser().parse_args(argv)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     destination = Path(args.output or f"outputs/{stamp}_{args.command}.json")
-    sdk_required = args.command == "build-isaac-asset" or (args.command == "run-test" and args.target == "sim") or (
+    sdk_required = args.command in ("build-isaac-asset", "validate-runtime-kinematics") or (args.command == "run-test" and args.target == "sim") or (
         args.command == "validate-isaac-asset" and importlib.util.find_spec("pxr") is None)
     if sdk_required and not args.sdk_worker:
         # A plain parent translates Kit's process exit into this toolkit's
@@ -135,10 +146,10 @@ def main(argv=None):
     try:
         module = import_module("programs." + COMMANDS[args.command][0])
         report = module.run(args)
-    except (InputError, OSError, KeyError, ValueError, ImportError, AttributeError, RuntimeError, TypeError) as exc:
+    except Exception as exc:
         if args.debug:
             raise
-        report = result(args.command, {"error": str(exc)}, status="blocked")
+        report = result(args.command, {"error": str(exc), "error_type": type(exc).__name__}, status="blocked")
     report["methodology"] = basis(args.command)
     report["run_id"] = stamp
     save(destination, report)

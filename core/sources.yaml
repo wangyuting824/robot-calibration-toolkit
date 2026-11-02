@@ -1,5 +1,17 @@
 verified_date: '2026-11-02'
 sources:
+  LINUX_SOCKETCAN:
+    authority: Linux kernel official documentation
+    url: https://docs.kernel.org/networking/can.html
+    scope: CAN-FD socket frames, interface state and statistics; warning diagnostic policy is project-defined
+  OPENARM_CAN:
+    authority: Enactic OpenArm official CAN library, pinned source revision
+    url: https://github.com/enactic/openarm_can/blob/a30364622ca939b8c8a741167c317b3e95e38a49/src/openarm/damiao_motor/dm_motor_control.cpp
+    scope: create_refresh_command state-query packet; no enable, zero, mode, parameter or target writes
+  OPENARM_DESCRIPTION:
+    authority: OpenArm official robot description documentation
+    url: https://docs.openarm.dev/api-reference/description/
+    scope: Nominal URDF and mimic definitions; not proof of this physical robot calibration
   ROS_URDF:
     authority: ROS urdfdom maintainers
     url: https://github.com/ros/urdfdom
@@ -47,7 +59,7 @@ sources:
   NVIDIA_ARTICULATION:
     authority: NVIDIA Isaac Sim 6.1.0 official documentation
     url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.core.experimental.prims/docs/index.html
-    scope: Articulation position targets and state readings
+    scope: Articulation position targets/state and RigidPrim tensor world poses
   NVIDIA_STEPPING:
     authority: NVIDIA Isaac Sim 6.1.0 official documentation
     url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.core.simulation_manager/docs/index.html
@@ -77,11 +89,13 @@ sources:
     url: https://infosys.beckhoff.com/content/1033/tf5200_homing/343674123.html?id=1788924359209060089
     scope: Event latching vs stopping position; cannot substitute for this robot manufacturer's procedure
 programs:
+  check-openarm: {kind: project_transport_diagnostic_with_documented_state_query, sources: [OPENARM_CAN, LINUX_SOCKETCAN]}
+  validate-runtime-kinematics: {kind: project_simulation_only_FK_comparison, sources: [NVIDIA_ARTICULATION, NVIDIA_STEPPING, ROS_URDF]}
   preflight: {kind: project_workflow, sources: []}
   prepare-inputs: {kind: project_workflow, sources: [ROS_URDF]}
   validate-structure: {kind: project_validation, sources: [ROS_URDF, ROS_REP103]}
   build-urdf: {kind: project_implementation_of_format, sources: [ROS_URDF, ROS_REP103, ROS_CALIBRATION]}
-  capture-data: {kind: project_interface_requires_device_SDK, sources: [ROS_REP103]}
+  capture-data: {kind: project_interface_requires_device_SDK, sources: [ROS_REP103, OPENARM_CAN]}
   run-test: {kind: project_runner_requires_manufacturer_procedure_for_real_motion, sources: [NVIDIA_ARTICULATION, NVIDIA_ARTICULATION_51, NVIDIA_STEPPING, NVIDIA_VERSION]}
   calibrate-joint-reference: {kind: project_numeric_fit_not_vendor_procedure, sources: [SCIPY_LS, ROS_REP103]}
   verify-joint-limits: {kind: project_record_verification_no_stop_search, sources: [BECKHOFF_REFERENCE, ROS_URDF]}

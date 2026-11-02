@@ -21,6 +21,8 @@
 
 目录见 [docs/project_layout.md](docs/project_layout.md)，实际 SDK 与离线检查范围、尚未执行的真机验证见 [docs/testing.md](docs/testing.md)。
 
+OpenArm 接入、CAN 检查与完整模型测试见 [docs/openarm_validation.md](docs/openarm_validation.md)。程序验证和真实机器人的标定验收分别记录。
+
 ## 安装与离线自检
 
 基础工具支持 Python 3.10+；Isaac 部分使用 6.1.0 版本文档中的接口，启动后读取官方版本信息并检查是否匹配。只有显式配置 `expected_isaac_sim_version: 5.1.0` 才运行遗留兼容分支，该结果不算作 6.1.0 验证。

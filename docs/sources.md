@@ -11,6 +11,8 @@
 
 没有将第 3、4 类标记成 NVIDIA 或机器人厂家的官方算法。SciPy 文档只支持数值求解器的使用，不能据此声称物理测量方法已获厂家认可。
 
+OpenArm 专用的 `check-openarm` 依据已固定版本的 [Enactic 官方状态查询源码](https://github.com/enactic/openarm_can/blob/a30364622ca939b8c8a741167c317b3e95e38a49/src/openarm/damiao_motor/dm_motor_control.cpp)独立封装非运动状态查询；`validate-runtime-kinematics` 调用 NVIDIA tensor 位姿接口并与本地 FK 比较。两者的实际验证范围见 [OpenArm 说明](openarm_validation.md)。
+
 ## 运动学
 
 [ROS robot_calibration](https://github.com/mikeferguson/robot_calibration)描述了关节零偏、自由坐标与观测误差的标定。本项目采用独立测量的完整位姿残差，使用 [SciPy bounded least squares](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html) 优化明确选择的参数。
