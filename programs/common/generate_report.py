@@ -41,7 +41,7 @@ def run(args):
             for ax, key, label in zip(axes, ("position_error_m", "orientation_error_rad"), ("Position error [m]", "Orientation error [rad]")):
                 ax.plot([number(r[key]) for r in rows])
                 ax.set_ylabel(label)
-                ax.set_xlabel("Independent validation sample")
+                ax.set_xlabel("Validation sample index")
                 ax.grid(True, alpha=0.3)
         elif "error" in rows[0]:
             # Separate physical units by metric rather than mixing their magnitudes.
