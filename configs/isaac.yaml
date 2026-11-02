@@ -1,0 +1,14 @@
+expected_isaac_sim_version: 6.1.0
+api_family: NVIDIA_6_1_0_experimental
+physics_backend: physx
+fix_base: null
+headless: true
+physics_dt: 0.004166666666666667
+gravity: [0, 0, -9.81]
+self_collision: false
+closed_loops: []
+constraint_layer: null
+constraint_reference: null
+drives: {}
+materials: []
+note: dt、重力及自碰撞是仿真初始设置。基座方式、驱动和接触参数需按工况确认。

@@ -1,0 +1,7 @@
+schema_version: 1
+robot_model: null
+robot_revision: null
+baseline_urdf: inputs/baseline_model/robot_urdf_external_joints/robot.urdf
+parameters: templates/robot_parameters.xlsx
+units: {length: m, angle: rad, mass: kg, time: s}
+scope: [definition, kinematics, isaac_dynamics]

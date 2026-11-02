@@ -1,0 +1,289 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    doc = """Synthetic two-joint reference imported with Isaac Sim 5.1.0; static regression fixture only
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+over "Flattened_Prototype_1"
+{
+    def Xform "mesh_0"
+    {
+        quatd xformOp:orient = (1, 0, 0, 0)
+        double3 xformOp:scale = (0.699999988079071, 0.10000000149011612, 0.10000000149011612)
+        double3 xformOp:translate = (0.3499999940395355, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Cube "box"
+        {
+            float3[] extent = [(-0.35, -0.05, -0.05), (0.35, 0.05, 0.05)]
+            double size = 1
+        }
+    }
+}
+
+over "Flattened_Prototype_2"
+{
+    def Xform "mesh_0"
+    {
+        uniform token purpose = "guide"
+        quatd xformOp:orient = (1, 0, 0, 0)
+        double3 xformOp:scale = (1, 0.10000000149011612, 0.10000000149011612)
+        double3 xformOp:translate = (0.5, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Cube "box" (
+            apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            float3[] extent = [(-0.5, -0.05, -0.05), (0.5, 0.05, 0.05)]
+            double size = 1
+        }
+    }
+}
+
+over "Flattened_Prototype_3"
+{
+    def Xform "mesh_0"
+    {
+        quatd xformOp:orient = (1, 0, 0, 0)
+        double3 xformOp:scale = (1, 0.10000000149011612, 0.10000000149011612)
+        double3 xformOp:translate = (0.5, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Cube "box"
+        {
+            float3[] extent = [(-0.5, -0.05, -0.05), (0.5, 0.05, 0.05)]
+            double size = 1
+        }
+    }
+}
+
+over "Flattened_Prototype_4"
+{
+    def Xform "mesh_0"
+    {
+        uniform token purpose = "guide"
+        quatd xformOp:orient = (1, 0, 0, 0)
+        double3 xformOp:scale = (0.699999988079071, 0.10000000149011612, 0.10000000149011612)
+        double3 xformOp:translate = (0.3499999940395355, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Cube "box" (
+            apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            float3[] extent = [(-0.35, -0.05, -0.05), (0.35, 0.05, 0.05)]
+            double size = 1
+        }
+    }
+}
+
+def Xform "World"
+{
+    def Xform "Robot" (
+        apiSchemas = ["IsaacRobotAPI"]
+    )
+    {
+        string[] isaac:changelog
+        string isaac:description
+        token isaac:license
+        string isaac:namespace
+        rel isaac:physics:robotJoints = [
+            </World/Robot/joints/j1>,
+            </World/Robot/joints/j2>,
+        ]
+        rel isaac:physics:robotLinks = [
+            </World/Robot/base>,
+            </World/Robot/arm1>,
+            </World/Robot/arm2>,
+        ]
+        token isaac:robotType
+        string isaac:source
+        string isaac:version
+        quatd xformOp:orient = (1, 0, 0, 0)
+        double3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Xform "base" (
+            apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "IsaacLinkAPI"]
+        )
+        {
+            string isaac:nameOverride
+            point3f physics:centerOfMass = (0, 0, 0)
+            float3 physics:diagonalInertia = (1, 1, 1)
+            float physics:mass = 10
+            quatf physics:principalAxes = (1, 0, 0, 0)
+            quatd xformOp:orient = (1, 0, 0, 0)
+            double3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Xform "visuals" (
+                instanceable = true
+            )
+            {
+            }
+
+            def Xform "collisions"
+            {
+            }
+        }
+
+        def Xform "arm1" (
+            apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "IsaacLinkAPI"]
+        )
+        {
+            string isaac:nameOverride
+            point3f physics:centerOfMass = (0.5, 0, 0)
+            float3 physics:diagonalInertia = (0.02, 0.18, 0.18)
+            float physics:mass = 2
+            quatf physics:principalAxes = (1, 0, 0, 0)
+            quatd xformOp:orient = (1, 0, 0, 0)
+            double3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Xform "visuals" (
+                instanceable = true
+                append references = </Flattened_Prototype_3>
+            )
+            {
+            }
+
+            def Xform "collisions" (
+                instanceable = true
+                append references = </Flattened_Prototype_2>
+            )
+            {
+            }
+        }
+
+        def Scope "joints"
+        {
+            def PhysicsRevoluteJoint "j1" (
+                apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular", "PhysxJointAPI", "IsaacJointAPI"]
+            )
+            {
+                float drive:angular:physics:damping = 0.034906585
+                float drive:angular:physics:maxForce = 100
+                float drive:angular:physics:stiffness = 0.34906584
+                float drive:angular:physics:targetPosition = 0
+                uniform token drive:angular:physics:type = "force"
+                string isaac:nameOverride
+                float[] isaac:physics:AccelerationLimit
+                int isaac:physics:index
+                float[] isaac:physics:JerkLimit
+                int isaac:physics:Rot_X:DofOffset
+                int isaac:physics:Rot_Y:DofOffset
+                int isaac:physics:Rot_Z:DofOffset
+                int isaac:physics:Tr_X:DofOffset
+                int isaac:physics:Tr_Y:DofOffset
+                int isaac:physics:Tr_Z:DofOffset
+                uniform token physics:axis = "Z"
+                rel physics:body0 = </World/Robot/base>
+                rel physics:body1 = </World/Robot/arm1>
+                float physics:breakForce = 3.4028235e38
+                float physics:breakTorque = 3.4028235e38
+                float physics:JointEquivalentInertia = 1.282486
+                point3f physics:localPos0 = (0, 0, 0)
+                point3f physics:localPos1 = (0, 0, 0)
+                quatf physics:localRot0 = (1, 0, 0, 0)
+                quatf physics:localRot1 = (1, 0, 0, 0)
+                float physics:lowerLimit = -114.59155
+                float physics:upperLimit = 114.59155
+                float physxJoint:maxJointVelocity = 114.59155
+            }
+
+            def PhysicsRevoluteJoint "j2" (
+                apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular", "PhysxJointAPI", "IsaacJointAPI"]
+            )
+            {
+                float drive:angular:physics:damping = 0.034906585
+                float drive:angular:physics:maxForce = 100
+                float drive:angular:physics:stiffness = 0.34906584
+                float drive:angular:physics:targetPosition = 0
+                uniform token drive:angular:physics:type = "force"
+                string isaac:nameOverride
+                float[] isaac:physics:AccelerationLimit
+                int isaac:physics:index
+                float[] isaac:physics:JerkLimit
+                int isaac:physics:Rot_X:DofOffset
+                int isaac:physics:Rot_Y:DofOffset
+                int isaac:physics:Rot_Z:DofOffset
+                int isaac:physics:Tr_X:DofOffset
+                int isaac:physics:Tr_Y:DofOffset
+                int isaac:physics:Tr_Z:DofOffset
+                uniform token physics:axis = "Y"
+                rel physics:body0 = </World/Robot/arm1>
+                rel physics:body1 = </World/Robot/arm2>
+                float physics:breakForce = 3.4028235e38
+                float physics:breakTorque = 3.4028235e38
+                float physics:JointEquivalentInertia = 3.207948
+                point3f physics:localPos0 = (1, 0, 0)
+                point3f physics:localPos1 = (0, 0, 0)
+                quatf physics:localRot0 = (1, 0, 0, 0)
+                quatf physics:localRot1 = (1, 0, 0, 0)
+                float physics:lowerLimit = -114.59155
+                float physics:upperLimit = 114.59155
+                float physxJoint:maxJointVelocity = 114.59155
+            }
+        }
+
+        def Xform "arm2" (
+            apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "IsaacLinkAPI"]
+        )
+        {
+            string isaac:nameOverride
+            point3f physics:centerOfMass = (0.35, 0, 0)
+            float3 physics:diagonalInertia = (0.02, 0.08, 0.08)
+            float physics:mass = 1.5
+            quatf physics:principalAxes = (1, 0, 0, 0)
+            quatd xformOp:orient = (1, 0, 0, 0)
+            double3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (1, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Xform "visuals" (
+                instanceable = true
+                append references = </Flattened_Prototype_1>
+            )
+            {
+            }
+
+            def Xform "collisions" (
+                instanceable = true
+                append references = </Flattened_Prototype_4>
+            )
+            {
+            }
+        }
+
+        def Scope "Looks"
+        {
+        }
+
+        def PhysicsFixedJoint "root_joint" (
+            apiSchemas = ["PhysicsArticulationRootAPI", "PhysxArticulationAPI"]
+        )
+        {
+            rel physics:body1 = </World/Robot/base>
+            bool physxArticulation:enabledSelfCollisions = 0
+            int physxArticulation:solverPositionIterationCount = 32
+            int physxArticulation:solverVelocityIterationCount = 1
+        }
+    }
+
+    def PhysicsScene "PhysicsScene" (
+        apiSchemas = ["PhysxSceneAPI"]
+    )
+    {
+        vector3f physics:gravityDirection = (0, 0, -1)
+        float physics:gravityMagnitude = 0
+        uint physxScene:timeStepsPerSecond = 240
+    }
+}

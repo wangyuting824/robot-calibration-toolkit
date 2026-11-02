@@ -1,0 +1,195 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    doc = "Synthetic two-joint reference imported with Isaac Sim 6.1.0-rc.26; static regression fixture only"
+    endTimeCode = 1000000
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    startTimeCode = 0
+    timeCodesPerSecond = 240
+    upAxis = "Z"
+)
+
+def Xform "World"
+{
+    def Xform "Robot" (
+        apiSchemas = ["GeomModelAPI", "IsaacRobotAPI"]
+        assetInfo = {
+            string name = "synthetic_two_joint_arm"
+        }
+        kind = "component"
+    )
+    {
+        float3[] extentsHint = [(0, -0.05, -0.05), (1.7, 0.05, 0.05), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (0, -0.05, -0.05), (1.7, 0.05, 0.05)]
+        rel isaac:physics:robotJoints = [
+            </World/Robot/Physics/root_joint>,
+            </World/Robot/Physics/j1>,
+            </World/Robot/Physics/j2>,
+        ]
+        rel isaac:physics:robotLinks = [
+            </World/Robot/Geometry/base>,
+            </World/Robot/Geometry/base/arm1>,
+            </World/Robot/Geometry/base/arm1/arm2>,
+        ]
+        token isaac:robotType = "Default"
+
+        def Scope "Geometry"
+        {
+            def Xform "base" (
+                apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsArticulationRootAPI", "NewtonArticulationRootAPI", "PhysicsMassAPI", "NewtonMassAPI", "IsaacLinkAPI"]
+            )
+            {
+                double[] newton:inertia = [1, 1, 1, 0, 0, 0]
+                bool newton:selfCollisionEnabled = 0
+                point3f physics:centerOfMass = (0, 0, 0)
+                float3 physics:diagonalInertia = (1, 1, 1)
+                float physics:mass = 10
+                quatf physics:principalAxes = (1, 0, 0, 0)
+
+                def Xform "arm1" (
+                    apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "NewtonMassAPI", "IsaacLinkAPI"]
+                )
+                {
+                    double[] newton:inertia = [0.02, 0.18, 0.18, 0, 0, 0]
+                    point3f physics:centerOfMass = (0.5, 0, 0)
+                    float3 physics:diagonalInertia = (0.02, 0.18, 0.18)
+                    float physics:mass = 2
+                    quatf physics:principalAxes = (1, 0, 0, 0)
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Xform "arm2" (
+                        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "NewtonMassAPI", "IsaacLinkAPI"]
+                    )
+                    {
+                        double[] newton:inertia = [0.02, 0.08, 0.08, 0, 0, 0]
+                        point3f physics:centerOfMass = (0.35, 0, 0)
+                        float3 physics:diagonalInertia = (0.02, 0.08, 0.08)
+                        float physics:mass = 1.5
+                        quatf physics:principalAxes = (1, 0, 0, 0)
+                        quatf xformOp:orient = (1, 0, 0, 0)
+                        float3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (1, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                        def Cube "box"
+                        {
+                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                            double size = 1
+                            quatf xformOp:orient = (1, 0, 0, 0)
+                            float3 xformOp:scale = (0.7, 0.1, 0.1)
+                            double3 xformOp:translate = (0.35, 0, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+
+                        def Cube "box_1" (
+                            apiSchemas = ["NewtonCollisionAPI", "PhysicsCollisionAPI"]
+                            displayName = "box"
+                        )
+                        {
+                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                            uniform token purpose = "guide"
+                            double size = 1
+                            quatf xformOp:orient = (1, 0, 0, 0)
+                            float3 xformOp:scale = (0.7, 0.1, 0.1)
+                            double3 xformOp:translate = (0.35, 0, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+                    }
+
+                    def Cube "box"
+                    {
+                        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                        double size = 1
+                        quatf xformOp:orient = (1, 0, 0, 0)
+                        float3 xformOp:scale = (1, 0.1, 0.1)
+                        double3 xformOp:translate = (0.5, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Cube "box_1" (
+                        apiSchemas = ["NewtonCollisionAPI", "PhysicsCollisionAPI"]
+                        displayName = "box"
+                    )
+                    {
+                        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                        uniform token purpose = "guide"
+                        double size = 1
+                        quatf xformOp:orient = (1, 0, 0, 0)
+                        float3 xformOp:scale = (1, 0.1, 0.1)
+                        double3 xformOp:translate = (0.5, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+                }
+            }
+        }
+
+        def Scope "Physics"
+        {
+            def PhysicsFixedJoint "root_joint" (
+                apiSchemas = ["IsaacJointAPI"]
+            )
+            {
+                rel physics:body0 = </World/Robot>
+                rel physics:body1 = </World/Robot/Geometry/base>
+                point3f physics:localPos0 = (0, 0, 0)
+                point3f physics:localPos1 = (0, 0, 0)
+                quatf physics:localRot0 = (1, 0, 0, 0)
+                quatf physics:localRot1 = (1, 0, 0, 0)
+            }
+
+            def PhysicsRevoluteJoint "j1" (
+                apiSchemas = ["PhysicsDriveAPI:angular", "PhysxJointAPI", "NewtonJointAPI", "PhysicsJointStateAPI:angular", "IsaacJointAPI"]
+            )
+            {
+                float drive:angular:physics:damping = 0.034906585
+                float drive:angular:physics:maxForce = 100
+                float drive:angular:physics:stiffness = 0.34906584
+                uniform token drive:angular:physics:type = "force"
+                float newton:velocityLimit = 114.59156
+                uniform token physics:axis = "Z"
+                rel physics:body0 = </World/Robot/Geometry/base>
+                rel physics:body1 = </World/Robot/Geometry/base/arm1>
+                point3f physics:localPos0 = (0, 0, 0)
+                point3f physics:localPos1 = (0, 0, 0)
+                quatf physics:localRot0 = (1, 0, 0, 0)
+                quatf physics:localRot1 = (1, 0, 0, 0)
+                float physics:lowerLimit = -114.59156
+                float physics:upperLimit = 114.59156
+                custom float urdf:limit:effort = 100
+            }
+
+            def PhysicsRevoluteJoint "j2" (
+                apiSchemas = ["PhysicsDriveAPI:angular", "PhysxJointAPI", "NewtonJointAPI", "PhysicsJointStateAPI:angular", "IsaacJointAPI"]
+            )
+            {
+                float drive:angular:physics:damping = 0.034906585
+                float drive:angular:physics:maxForce = 100
+                float drive:angular:physics:stiffness = 0.34906584
+                uniform token drive:angular:physics:type = "force"
+                float newton:velocityLimit = 114.59156
+                uniform token physics:axis = "Y"
+                rel physics:body0 = </World/Robot/Geometry/base/arm1>
+                rel physics:body1 = </World/Robot/Geometry/base/arm1/arm2>
+                point3f physics:localPos0 = (1, 0, 0)
+                point3f physics:localPos1 = (0, 0, 0)
+                quatf physics:localRot0 = (1, 0, 0, 0)
+                quatf physics:localRot1 = (1, 0, 0, 0)
+                float physics:lowerLimit = -114.59156
+                float physics:upperLimit = 114.59156
+                custom float urdf:limit:effort = 100
+            }
+        }
+    }
+
+    def PhysicsScene "PhysicsScene" (
+        apiSchemas = ["PhysxSceneAPI"]
+    )
+    {
+        vector3f physics:gravityDirection = (0, 0, -1)
+        float physics:gravityMagnitude = 0
+        uint physxScene:timeStepsPerSecond = 240
+    }
+}

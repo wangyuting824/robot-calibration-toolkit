@@ -1,0 +1,19 @@
+stage: kinematics
+required_dynamics_metrics: [q, dq, tau]
+reports: []
+artifacts:
+  - {delivery: D01, path: inputs/confirmed_parameters}
+  - {delivery: D02, path: deliverables/D02_urdf}
+  - {delivery: D03, path: deliverables/D03_isaac}
+  - {delivery: D04, path: programs}
+  - {delivery: D04, path: core}
+  - {delivery: D04, path: adapters}
+  - {delivery: D04, path: configs}
+  - {delivery: D04, path: templates}
+  - {delivery: D04, path: examples}
+  - {delivery: D04, path: run.py}
+  - {delivery: D04, path: pyproject.toml}
+  - {delivery: D04, path: inputs/measurements}
+  - {delivery: D05, path: deliverables/D05_reports}
+  - {delivery: D06, path: docs}
+note: 按项目填写 reports 与实际路径；尚未验证的阶段可以交付 readiness 记录，但不能通过该阶段的正式验收。

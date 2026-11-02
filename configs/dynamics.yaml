@@ -1,0 +1,5 @@
+fixed_base: null
+inertia_source: null
+gravity: [0, 0, -9.81]
+friction_velocity_scale: null
+note: 本地回归辨识关节附加惯量和摩擦；连杆质量、质心、惯量需先有可追溯数据。

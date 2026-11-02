@@ -1,0 +1,14 @@
+kinematics:
+  max_position_m: null
+  max_orientation_rad: null
+asset:
+  limit_tolerance_rad_or_m: null
+  axis_tolerance_rad: null
+  anchor_tolerance_m: null
+  mass_tolerance_kg: null
+  com_tolerance_m: null
+  inertia_tolerance_kg_m2: null
+dynamics:
+  required_metrics: [q, dq]
+  max_abs: {q: null, dq: null, tau: null, normal_force: null, slip_velocity: null}
+note: 验收阈值需由项目确认。程序没有默认的真机合格阈值。

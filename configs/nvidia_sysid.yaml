@@ -1,0 +1,10 @@
+python_launcher: null
+official_tool: null
+stage: null
+telemetry: null
+robot_prim: null
+recipe: null
+timeout_s: 3600
+note: NVIDIA 6.1.0 官方 SysID 扩展入口，需安装该扩展。recipe 必须按实际工况选择；manipulator、drive_calibration_inair 等的控制器和物理后端不同，以官方文档和 Check 为准。
+
+expected_isaac_sim_version: 6.1.0

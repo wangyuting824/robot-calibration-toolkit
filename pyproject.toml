@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robot-calibration-toolkit"
+version = "0.1.0"
+description = "Traceable URDF calibration and Isaac Sim alignment workflows"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24,<3", "scipy>=1.10,<2", "PyYAML>=6,<7", "openpyxl>=3.1,<4"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+usd = ["usd-core>=24"]
+plot = ["matplotlib>=3.7,<4"]
+
+[tool.setuptools.package-data]
+core = ["sources.yaml"]
+
+[project.scripts]
+robotcal = "core.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["core*", "adapters*", "programs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

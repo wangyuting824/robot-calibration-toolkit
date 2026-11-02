@@ -1,0 +1,2 @@
+joints: {}
+note: 每项填写 lower、upper、kind、source、tolerance、repeatability_peak_to_peak、minimum_repeats，未知不填 0。

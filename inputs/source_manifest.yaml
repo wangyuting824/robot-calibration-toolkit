@@ -1,0 +1,8 @@
+files:
+  - label: 原始装配几何
+    path: ../../机器人总装（对外）.STEP
+  - label: 基线模型包
+    path: ../../robot_urdf_external_joints.zip
+  - label: 建模资料确认清单
+    path: ../../机器人 URDF 建模资料确认清单.docx
+missing_requested_file: STEP候选连杆与连接关系确认.xlsx

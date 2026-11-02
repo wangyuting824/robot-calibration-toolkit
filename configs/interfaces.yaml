@@ -1,0 +1,6 @@
+class: adapters.robot_adapter_template:RobotAdapter
+manufacturer_procedure: null
+commissioning_reference: null
+limits_confirmed: false
+start_tolerance_rad_or_m: null
+options: {}

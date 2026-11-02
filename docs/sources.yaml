@@ -1,0 +1,98 @@
+verified_date: '2026-11-02'
+sources:
+  ROS_URDF:
+    authority: ROS urdfdom maintainers
+    url: https://github.com/ros/urdfdom
+    scope: URDF parser and model semantics; project parser is an independent subset implementation
+  ROS_REP103:
+    authority: ROS REP maintainers
+    url: https://github.com/ros-infrastructure/rep/blob/master/rep-0103.rst
+    scope: SI units, coordinate conventions and right-handed frames
+  ROS_CALIBRATION:
+    authority: robot_calibration package maintainer; ROS community project
+    url: https://github.com/mikeferguson/robot_calibration
+    scope: Free joint offsets, free frames, independent observations and calibration-result application; not a universal robot-vendor procedure
+  SCIPY_LS:
+    authority: SciPy official documentation
+    url: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html
+    scope: Bounded numerical least squares and robust losses; not a physical measurement procedure
+  SCIPY_LINEAR:
+    authority: SciPy official documentation
+    url: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.lsq_linear.html
+    scope: Bounded linear least squares; not proof of physical identifiability
+  NVIDIA_VERSION:
+    authority: NVIDIA Isaac Sim 6.1.0 official documentation
+    url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.core.version/docs/index.html
+    scope: Runtime application version and build information, checked before import and simulation
+  NVIDIA_IMPORT:
+    authority: NVIDIA Isaac Sim 6.1.0 official documentation
+    url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.asset.importer.urdf/docs/index.html
+    scope: URDFImporter and URDFImporterConfig API
+  NVIDIA_IMPORT_TESTS:
+    authority: NVIDIA Isaac Sim v6.1.0 official source
+    url: https://github.com/isaac-sim/IsaacSim/blob/v6.1.0/source/extensions/isaacsim.asset.importer.urdf/isaacsim/asset/importer/urdf/tests/test_urdf.py
+    scope: Explicit Physics/physx variant selection after importing a structured robot asset
+  NVIDIA_MIGRATION:
+    authority: NVIDIA Isaac Sim 6.1.0 official documentation
+    url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/migration_guides/isaac_sim_6_0/urdf_mjcf_importer_exporter_pipeline.html
+    scope: Removed legacy URDF commands and new 6.x importer interface
+  NVIDIA_IMPORT_51:
+    authority: NVIDIA Isaac Sim 5.1 official versioned documentation
+    url: https://docs.isaacsim.omniverse.nvidia.com/5.1.0/py/source/extensions/isaacsim.asset.importer.urdf/docs/index.html
+    scope: Legacy 5.1 import command, used only when the installed SDK exposes this version's interface
+  NVIDIA_ARTICULATION_51:
+    authority: NVIDIA Isaac Sim 5.1 official versioned documentation
+    url: https://docs.isaacsim.omniverse.nvidia.com/5.1.0/py/source/extensions/isaacsim.core.prims/docs/index.html
+    scope: Legacy SingleArticulation state/control API for existing 5.1 environments
+  NVIDIA_ARTICULATION:
+    authority: NVIDIA Isaac Sim 6.1.0 official documentation
+    url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.core.experimental.prims/docs/index.html
+    scope: Articulation position targets and state readings
+  NVIDIA_STEPPING:
+    authority: NVIDIA Isaac Sim 6.1.0 official documentation
+    url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.core.simulation_manager/docs/index.html
+    scope: Simulation setup and physics stepping; only one step owner
+  NVIDIA_GAIN:
+    authority: NVIDIA Isaac Sim 6.1.0 official documentation
+    url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_gain_tuner.html
+    scope: Implicit drive model and sinusoidal/step gain tests; not a real-robot calibration device
+  NVIDIA_SYSID:
+    authority: NVIDIA Isaac Sim 6.1.0 official documentation and installed extension 2.2.3
+    url: https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_sysid.html
+    scope: Official Beta headless SysID; installed headless_sysid_solve.py interface inspected; actual solving requires applicable telemetry and recipe
+  USD_DRIVE:
+    authority: OpenUSD official API documentation
+    url: https://openusd.org/release/api/class_usd_physics_drive_a_p_i.html
+    scope: Force/acceleration drives, angular degree units, stiffness, damping and effort limits
+  NVIDIA_PHYSICS:
+    authority: NVIDIA Omni Physics official documentation
+    url: https://docs.omniverse.nvidia.com/kit/docs/omni_physics/107.3/dev_guide/schemas/usdphysics.html
+    scope: USD physics schemas; contact regression approximations are project code
+  FEATHERSTONE:
+    authority: Rigid-body dynamics algorithm author's primary documentation
+    url: https://royfeatherstone.org/spatial/v2/
+    scope: Spatial algebra and recursive Newton-Euler algorithm; independently implemented, no Spatial_v2 code bundled
+  BECKHOFF_REFERENCE:
+    authority: Beckhoff official documentation, applicable to its referenced equipment
+    url: https://infosys.beckhoff.com/content/1033/tf5200_homing/343674123.html?id=1788924359209060089
+    scope: Event latching vs stopping position; cannot substitute for this robot manufacturer's procedure
+programs:
+  preflight: {kind: project_workflow, sources: []}
+  prepare-inputs: {kind: project_workflow, sources: [ROS_URDF]}
+  validate-structure: {kind: project_validation, sources: [ROS_URDF, ROS_REP103]}
+  build-urdf: {kind: project_implementation_of_format, sources: [ROS_URDF, ROS_REP103, ROS_CALIBRATION]}
+  capture-data: {kind: project_interface_requires_device_SDK, sources: [ROS_REP103]}
+  run-test: {kind: project_runner_requires_manufacturer_procedure_for_real_motion, sources: [NVIDIA_ARTICULATION, NVIDIA_ARTICULATION_51, NVIDIA_STEPPING, NVIDIA_VERSION]}
+  calibrate-joint-reference: {kind: project_numeric_fit_not_vendor_procedure, sources: [SCIPY_LS, ROS_REP103]}
+  verify-joint-limits: {kind: project_record_verification_no_stop_search, sources: [BECKHOFF_REFERENCE, ROS_URDF]}
+  calibrate-kinematics: {kind: project_numeric_implementation, sources: [ROS_CALIBRATION, SCIPY_LS]}
+  validate-kinematics: {kind: project_holdout_validation, sources: [ROS_REP103, ROS_CALIBRATION]}
+  build-isaac-asset: {kind: wrapper_of_official_NVIDIA_API, sources: [NVIDIA_IMPORT, NVIDIA_IMPORT_51, NVIDIA_IMPORT_TESTS, NVIDIA_MIGRATION, NVIDIA_VERSION, USD_DRIVE]}
+  validate-isaac-asset: {kind: project_consistency_check, sources: [NVIDIA_IMPORT, USD_DRIVE]}
+  run-nvidia-sysid: {kind: invokes_installed_official_NVIDIA_tool, sources: [NVIDIA_SYSID]}
+  identify-dynamics: {kind: project_RNEA_and_friction_regression, sources: [FEATHERSTONE, SCIPY_LINEAR]}
+  tune-drives: {kind: project_force_PD_regression, sources: [NVIDIA_GAIN, USD_DRIVE, SCIPY_LINEAR]}
+  identify-contact: {kind: project_approximate_model_fit_not_vendor_procedure, sources: [NVIDIA_PHYSICS, SCIPY_LINEAR]}
+  validate-dynamics: {kind: project_matched_experiment_comparison, sources: [ROS_REP103]}
+  generate-report: {kind: project_reporting, sources: []}
+  package-delivery: {kind: project_packaging, sources: []}

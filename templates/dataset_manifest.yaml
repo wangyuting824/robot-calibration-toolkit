@@ -1,0 +1,14 @@
+schema_version: 1
+dataset_id: null
+role: null
+data_kind: null
+units: {length: m, angle: rad, time: s, effort: N_or_Nm}
+clock: null
+source: null
+sha256: null
+observed_frame: null
+pose_source: null
+procedure_reference: null
+reference_instrument: null
+effort_reference: null
+note: 数据必须注明 real、simulation 或 synthetic；姿态四元数顺序为 xyzw。

@@ -1,0 +1,9 @@
+observed_frame: null
+tip_link: null
+base_xyz_rpy: [0, 0, 0, 0, 0, 0]
+tool_xyz_rpy: [0, 0, 0, 0, 0, 0]
+position_sigma_m: null
+angle_sigma_rad: null
+loss: soft_l1
+free_parameters: []
+note: 上述零变换只是配置初值，不能视为已经测量的基座或工具坐标。

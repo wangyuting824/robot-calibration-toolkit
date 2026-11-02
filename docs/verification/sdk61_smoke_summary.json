@@ -1,0 +1,40 @@
+{
+  "status": "sdk_smoke_pass",
+  "data_kind": "synthetic",
+  "samples": 61,
+  "j1_range": [
+    0.0,
+    0.042212821543216705
+  ],
+  "j2_range": [
+    -0.033202044665813446,
+    0.0
+  ],
+  "runtime_info": {
+    "isaac_sim_version": "6.1.0",
+    "expected_isaac_sim_version": "6.1.0",
+    "isaac_sim_build": [
+      "6.1.0",
+      "rc.26",
+      "6",
+      "1",
+      "0",
+      "rc",
+      "26",
+      "release.49347.2d230af4.gl"
+    ],
+    "api_family": "6.1.0 experimental",
+    "physics_scene": "/World/PhysicsScene",
+    "physics_dt_s": 0.004166666666666667,
+    "gravity_m_s2": [
+      0.0,
+      0.0,
+      -0.0
+    ],
+    "dof_names": [
+      "j1",
+      "j2"
+    ]
+  },
+  "is_real_robot_acceptance": false
+}
