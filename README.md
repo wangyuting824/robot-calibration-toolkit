@@ -39,6 +39,10 @@ python examples/run_offline_demo.py --destination /tmp/robotcal-demo
 
 离线示例生成带已知答案的 synthetic 数据，运行实际标定/验证程序，并检查正式交付门禁。它不调用真机，不代替 Isaac 物理仿真；示例通过不代表真实机器人精度达标。请为每次演示选择新的输出目录。
 
+## OpenArm 与 MuJoCo 软件测试
+
+新增不接管硬件的 ROS 2 关节状态采集适配器，以及 MuJoCo URDF 编译、模型/FK 检查和查看器。使用 `python -m pip install -e '.[test,mujoco]'` 安装可选依赖；操作、输出和官方依据见 [MuJoCo 测试说明](docs/mujoco_validation.md)。这条流程用于程序检查，D03 的 Isaac Sim 6.1.0 交付要求继续保留。
+
 ## 使用现有机器人资料
 
 现有三份文件放在本目录的上一层，保持其原文件名。仓库只保存路径清单；可修改 `inputs/source_manifest.yaml` 指向实际位置。
