@@ -7,7 +7,7 @@ import sys
 import subprocess
 import importlib.util
 
-from core.io import InputError, result, save, load
+from core.io import InputError, result, save, load, portable_inputs
 from core.provenance import basis
 
 COMMANDS = {
@@ -163,6 +163,7 @@ def main(argv=None):
     report["methodology"] = basis(args.command)
     report["run_id"] = stamp
     mapping_export = report.pop("_mapping_export", None)
+    portable_inputs(report, destination)
     save(destination, report)
     if mapping_export is not None:
         from core.io import sha256

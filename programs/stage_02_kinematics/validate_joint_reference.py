@@ -8,7 +8,7 @@ import os
 
 import numpy as np
 
-from core.io import InputError, csv_rows, dataset, load, number, result, save, sha256
+from core.io import InputError, csv_rows, dataset, load, number, result, save, sha256, evidence_paths
 from core.joint_mapping import checked_evidence
 from core.metrics import summary
 from core.model import Model
@@ -22,7 +22,7 @@ def run(args):
     fit = load(args.calibration)
     if fit.get("command") != "calibrate-joint-reference" or fit.get("status") != "computed":
         raise InputError("Supply a successful calibrate-joint-reference result")
-    original = [checked_evidence(e, Path.cwd()) for e in fit.get("inputs", [])]
+    original = evidence_paths(fit, args.calibration)
     train_csv = [p for p in original if p.suffix.lower() == ".csv"]
     if len(train_csv) != 1:
         raise InputError("Cannot identify the original training data")

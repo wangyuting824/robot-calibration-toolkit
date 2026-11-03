@@ -116,3 +116,39 @@ def test_mujoco_rejects_untraceable_feedback_before_loading_engine():
     from examples.run_mujoco_validation import run
     with pytest.raises(InputError, match="joint-manifest"):
         run(NS(joint_states="untrusted.csv", joint_manifest=None))
+
+
+def test_ascii_stl_conversion_preserves_source_and_inertias(demo):
+    mujoco=pytest.importorskip("mujoco")
+    trimesh=pytest.importorskip("trimesh")
+    from core.io import load
+    from core.mujoco_model import prepare, validate_static
+    from core.model import Model
+    mesh=demo/'ascii.stl'
+    mesh.write_text(trimesh.creation.box().export(file_type='stl_ascii'))
+    original=mesh.read_bytes()
+    tree=ET.parse(demo/'nominal.urdf')
+    geom=tree.find(".//link[@name='arm1']/visual/geometry")
+    for child in list(geom):geom.remove(child)
+    ET.SubElement(geom,'mesh',filename='ascii.stl',scale='.1 .1 .1')
+    path=demo/'ascii_model.urdf';tree.write(path)
+    xml=prepare(path,demo/'ascii_compiled')
+    assert mesh.read_bytes()==original
+    assert validate_static(Model(path),mujoco.MjModel.from_xml_path(str(xml)))['mass_com_inertia_axes_limits']=='passed'
+    assert 'ASCII STL to binary STL' in load(xml.parent/'preparation.json')['assets'][0]['conversion']
+
+
+def test_precise_urdf_frames_do_not_roundtrip_through_readable_mjcf(demo):
+    mujoco=pytest.importorskip('mujoco')
+    from core.model import Model
+    from core.mujoco_model import prepare,compare_fk,default_poses
+    tree=ET.parse(demo/'nominal.urdf')
+    o=tree.find("joint[@name='j2']/origin")
+    o.set('xyz','1.123456789123 0.123456789123 -0.234567891234')
+    o.set('rpy','0.123456789012 -0.234567890123 0.345678901234')
+    path=demo/'precise.urdf';tree.write(path)
+    nominal=Model(path);runtime=prepare(path,demo/'precise_model')
+    assert runtime.suffix=='.urdf'
+    compiled=mujoco.MjModel.from_xml_path(str(runtime))
+    report=compare_fk(nominal,compiled,default_poses(nominal),demo/'precise_errors.csv')
+    assert report['max_position_m']<1e-12 and report['max_orientation_rad']<1e-12

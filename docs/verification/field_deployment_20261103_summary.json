@@ -1,0 +1,110 @@
+{
+  "toolkit_version": "0.2.0",
+  "date": "2026-11-03",
+  "target": "Ubuntu x86_64",
+  "core_runtime": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "PyYAML": "6.0.3",
+    "openpyxl": "3.1.5",
+    "mujoco": "3.17.0",
+    "trimesh": "4.12.2",
+    "usd-core": "26.11",
+    "pytest": "9.2.0"
+  },
+  "python": "CPython 3.12.16 python-build-standalone 20261026",
+  "runtime_archive_sha256": "ce4f6d0a6cfdb3bed6e44c2f9affd85943c76a42e25ad3a259002f31d6fb8a20",
+  "source_tests": {
+    "passed": 108,
+    "log": "outputs/portable_build/tests_release.log"
+  },
+  "relocated_first_copy_tests": {
+    "passed": 106,
+    "new_mujoco_regressions_added_after_this_copy": 2
+  },
+  "network_guarded_synthetic_workflow": true,
+  "applied_geometry_offsets_frames_verified": true,
+  "isaac_frames": {
+    "status": "simulation_pass",
+    "isaac_version": [
+      "6.1.0",
+      "rc.26",
+      "6",
+      "1",
+      "0",
+      "rc",
+      "26",
+      "release.49347.2d230af4.gl"
+    ],
+    "base_transform_max_abs": 4.1494585545365226e-15,
+    "tool_transform_max_abs": 0.0,
+    "tool_path": "/World/Robot/Geometry/base/arm1/arm2/calibrated_tool",
+    "real_robot_acceptance": false
+  },
+  "xuchuang_nominal_mujoco": {
+    "status": "simulation_pass",
+    "version": "3.17.0",
+    "static": {
+      "links": 63,
+      "movable_joints": 14,
+      "independent_joints": 14,
+      "mimic_equalities": 0,
+      "mass_com_inertia_axes_limits": "passed"
+    },
+    "fk": {
+      "status": "simulation_pass",
+      "poses": 29,
+      "links_per_pose": 63,
+      "comparisons": 1827,
+      "max_position_m": 5.79553433516819e-16,
+      "max_orientation_rad": 1.0461619236214897e-15,
+      "threshold_scope": "Numerical software tolerances only; not physical calibration accuracy"
+    },
+    "physics_smoke": {
+      "status": "simulation_pass",
+      "steps": 100,
+      "duration_s": 0.20000000000000015,
+      "applied_test_effort": 0.001,
+      "max_position_change": 0.0004397028209781762,
+      "gravity": [
+        0,
+        0,
+        0
+      ],
+      "contact_enabled": false,
+      "hardware_control_commands_sent": false,
+      "scope": "Local engine smoke test, not physical dynamics or trajectory validation"
+    }
+  },
+  "coverage": {
+    "parameter_classes": 15,
+    "tool_classes": 11,
+    "deliveries": [
+      "D01",
+      "D02",
+      "D03",
+      "D04",
+      "D05",
+      "D06"
+    ],
+    "original_cli_commands": 23
+  },
+  "final_bundle_verification": {
+    "status": "verified",
+    "relocated_tests_passed": 108,
+    "path_test": "Separate directory with Chinese characters and spaces; launched from unrelated cwd",
+    "relocated_network_guarded_self_test": "synthetic_pass",
+    "relocated_xuchuang_preview": "simulation_pass",
+    "interactive_menu": "passed",
+    "initial_integrity_files_checked": 18720,
+    "isaac_sdk_included": false
+  },
+  "limitations": [
+    "Isaac/GPU/ROS/manufacturer SDK are separate installations",
+    "Unknown field PC is not yet tested",
+    "No Xuchuang independent physical measurements or accuracy acceptance",
+    "Dynamic/contact mappings remain specific to confirmed physical models"
+  ],
+  "hardware_control_commands_sent": false,
+  "is_real_robot_acceptance": false
+}

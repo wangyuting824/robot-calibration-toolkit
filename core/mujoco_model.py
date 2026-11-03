@@ -5,6 +5,7 @@ not measurements of physical axes, joint limits, inertia or accuracy.
 """
 from pathlib import Path
 import shutil
+import struct
 import xml.etree.ElementTree as ET
 
 import numpy as np
@@ -40,6 +41,14 @@ def prepare(urdf, destination):
     if root.find("mujoco") is not None:
         raise InputError("Existing MuJoCo extensions need explicit review before this test")
     assets = {}
+    geometry_names = set()
+    for index, geom in enumerate(root.findall(".//visual") + root.findall(".//collision")):
+        if geom.get("name"):
+            name = geom.get("name")
+            if name in geometry_names:
+                name = f"robotcal_geom_{index}_{name}"
+                geom.set("name", name)
+            geometry_names.add(name)
     for mesh in root.findall(".//mesh"):
         name = mesh.get("filename", "")
         if "://" in name:
@@ -67,6 +76,28 @@ def prepare(urdf, destination):
                 info.update(conversion="DAE scene geometry to OBJ; URDF material retained",
                     trimesh_version=trimesh.__version__, vertices=len(geometry.vertices), faces=len(geometry.faces),
                     source_scene_bounds=scene.bounds.tolist(), output_bounds=geometry.bounds.tolist())
+            elif suffix == ".stl":
+                # Official MuJoCo docs accept binary STL, not ASCII STL.
+                with path.open("rb") as handle:
+                    header=handle.read(84)
+                binary = len(header)==84 and 84+50*struct.unpack("<I",header[80:84])[0]==path.stat().st_size
+                over_stl_face_limit = binary and struct.unpack("<I",header[80:84])[0] > 200000
+                if binary and not over_stl_face_limit:
+                    shutil.copy2(path,output)
+                else:
+                    import trimesh
+                    geometry=trimesh.load_mesh(path,process=False)
+                    if not isinstance(geometry,trimesh.Trimesh) or not len(geometry.faces) or not np.isfinite(geometry.vertices).all():
+                        raise InputError("STL did not produce finite triangle geometry")
+                    if over_stl_face_limit:
+                        output=output.with_suffix(".obj")
+                        geometry.export(output,file_type="obj",include_texture=False,include_color=False,include_normals=False,digits=17)
+                    else:
+                        geometry.export(output,file_type="stl")
+                    info.update(conversion="Binary STL to OBJ for MuJoCo STL decoder face limit; no processing or decimation" if over_stl_face_limit else "ASCII STL to binary STL; no processing or decimation",
+                        trimesh_version=trimesh.__version__,vertices=len(geometry.vertices),faces=len(geometry.faces),
+                        output_bounds=geometry.bounds.tolist(),
+                        max_vertex_float32_roundoff=float(np.max(abs(geometry.vertices-geometry.vertices.astype(np.float32).astype(np.float64)))))
             else:
                 if suffix == ".obj" and any(line.lstrip().startswith("mtllib ") for line in path.read_text().splitlines()):
                     raise InputError("OBJ material dependencies require explicit packaging")
@@ -93,12 +124,14 @@ def prepare(urdf, destination):
     saved.write(mjcf, encoding="utf-8", xml_declaration=True)
     info = {"status": "built", "backend": "MuJoCo", "version": mujoco.__version__,
         "source_urdf": str(source), "source_sha256": sha256(source), "mjcf_sha256": sha256(mjcf),
+        "runtime_model": "robot.urdf", "readable_mjcf": "robot.xml", "mjcf_export_is_runtime": False,
+        "serialization_note": "Run the prepared URDF directly. mj_saveLastXML may round geometry/frame numbers in its readable MJCF export.",
         "assets": list(assets.values()), "sources": SOURCES,
         "is_real_robot_acceptance": False, "hardware_control_commands_sent": False,
         "scope": "Fixed base, zero gravity nominal model; URDF materials and collision meshes retained; mesh collision uses MuJoCo convex geometry"}
     save(target / "preparation.json", info)
-    validate_static(nominal, mujoco.MjModel.from_xml_path(str(mjcf)))
-    return mjcf
+    validate_static(nominal, compiled)
+    return modified
 
 
 def validate_static(nominal, model):

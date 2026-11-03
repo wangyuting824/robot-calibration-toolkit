@@ -10,7 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from core.io import InputError, csv_rows, dataset, number, result, save, write_csv
+from core.io import InputError, csv_rows, dataset, number, result, save, write_csv, portable_inputs
 from core.model import Model
 from core.mujoco_model import SOURCES, compare_fk, default_poses, physics_smoke, prepare, validate_static
 
@@ -90,7 +90,7 @@ def run(args):
         "model": str(mjcf), "is_real_robot_acceptance": False, "hardware_control_commands_sent": False,
         "scope": "Nominal model compiler/FK/engine checks. Recorded feedback coordinates remain uncalibrated; no physical measurement or Isaac acceptance."},
         [args.urdf, args.joint_states, args.joint_manifest], status="failed" if failed else "simulation_pass")
-    save(destination / "summary.json", summary)
+    save(destination / "summary.json", portable_inputs(summary, destination / "summary.json"))
     print(f"MuJoCo {mujoco.__version__}: {summary['status']}; {numerical['comparisons']} link comparisons", flush=True)
     if failed:
         raise InputError("MuJoCo numerical comparison failed; inspect summary.json")

@@ -2,6 +2,8 @@
 
 这套流程不需要额外测量仪器。OpenArm 用来检查程序和数据链路，旭创项目仍需自己的参数、测量与验收。MuJoCo 是本次新增的模型测试环境，D03 的 Isaac Sim 6.1.0 交付要求继续保留。
 
+现场版会将 ASCII STL 转为二进制 STL；超过本机 MuJoCo STL 解码面数上限的网格转为 OBJ，保留所有三角面并记录来源和转换哈希，不做简化。依据是 [MuJoCo 官方 mesh 格式说明](https://mujoco.readthedocs.io/en/3.17.0/XMLreference.html#asset-mesh)。运行时使用输出目录 `model/robot.urdf`，避免 `mj_saveLastXML` 可读 MJCF 导出的数字舍入；`robot.xml` 仅保留为可读参考。原 URDF 和网格不改动。
+
 ## 能检查什么
 
 | 检查 | 输入与做法 | 结果能证明什么 |
@@ -39,7 +41,7 @@ python examples/run_mujoco_validation.py \
 
 python examples/view_mujoco.py \
   --urdf /实际路径/built/robot.urdf \
-  --mjcf /tmp/robotcal-mujoco-new/model/robot.xml \
+  --mjcf /tmp/robotcal-mujoco-new/model/robot.urdf \
   --poses /tmp/robotcal-mujoco-new/view_poses.json
 ```
 
@@ -81,7 +83,7 @@ ROS_DOMAIN_ID=42 /usr/bin/python3 run.py capture-data \
 ```bash
 python examples/check_openarm_calibration_math.py \
   --urdf /实际路径/built/robot.urdf \
-  --mjcf /tmp/robotcal-mujoco-new/model/robot.xml \
+  --mjcf /tmp/robotcal-mujoco-new/model/robot.urdf \
   --destination /tmp/robotcal-openarm-math-new
 ```
 

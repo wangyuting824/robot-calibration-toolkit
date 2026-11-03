@@ -17,3 +17,7 @@ inputs/confirmed_parameters/
 *.usdc
 *.zip
 .env
+runtime/
+wheelhouse/
+projects/
+.machine.json

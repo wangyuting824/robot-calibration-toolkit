@@ -6,7 +6,7 @@ clips values, extrapolates, or claims physical acceptance from a candidate.
 """
 from pathlib import Path
 
-from core.io import InputError, load, number, sha256
+from core.io import InputError, load, number, sha256, evidence_paths
 from core.model import Model
 
 
@@ -43,8 +43,7 @@ class JointMapping:
                 raise InputError("Mapping requires a passing independent joint-reference validation")
             if not validation.get("inputs") or validation.get("urdf_sha256") != p["urdf_sha256"]:
                 raise InputError("Validation evidence does not bind this URDF")
-            for entry in validation.get("inputs", []):
-                checked_evidence(entry, report.parent)
+            evidence_paths(validation, report)
             self.qualified = validation["status"] == "passed" and validation.get("training_data_kind") == "real" and validation.get("dataset", {}).get("data_kind") == "real"
             for key in ("robot_id", "input_coordinates_id"):
                 if validation.get(key) != p[key]:

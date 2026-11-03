@@ -1,7 +1,7 @@
 """Package explicitly listed artifacts. Final delivery requires current real-data acceptance."""
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
-from core.io import InputError, load, result, save, sha256
+from core.io import InputError, load, result, save, sha256, evidence_paths
 
 
 def run(args):
@@ -30,10 +30,8 @@ def run(args):
                     raise InputError("Declare required_dynamics_metrics for final dynamics delivery")
                 if not any(required_metrics <= set(r.get("required_metrics", [])) and r.get("real_dataset", {}).get("data_kind") == "real" for r in accepted):
                     raise InputError("Dynamics evidence does not cover the declared real-data acceptance scope")
-        for report in reports:
-            for entry in report.get("inputs", []):
-                if not Path(entry["path"]).is_file() or sha256(entry["path"]) != entry["sha256"]:
-                    raise InputError(f"Stale or missing report input: {entry['path']}")
+        for report, path in zip(reports, config.get("reports", [])):
+            evidence_paths(report, path)
     destination = Path(args.destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists():

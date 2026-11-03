@@ -4,7 +4,7 @@ import math
 import os
 
 from adapters.isaac_adapter import start_app, runtime_version, TARGET_VERSION
-from core.io import InputError, load, number, result, sha256
+from core.io import InputError, load, number, result, sha256, vector
 from core.model import Model
 
 
@@ -80,6 +80,13 @@ def run(args):
         stage.SetDefaultPrim(world.GetPrim())
         robot = stage.DefinePrim("/World/Robot", "Xform")
         robot.GetReferences().AddReference(os.path.relpath(asset, output))
+        if config.get("base_xyz_rpy") is not None:
+            from scipy.spatial.transform import Rotation
+            base = vector(config["base_xyz_rpy"], 6, "base_xyz_rpy")
+            q = Rotation.from_euler("xyz", base[3:]).as_quat()
+            xform = UsdGeom.Xformable(robot)
+            xform.AddTranslateOp().Set(Gf.Vec3d(*map(float, base[:3])))
+            xform.AddOrientOp(precision=UsdGeom.XformOp.PrecisionDouble).Set(Gf.Quatd(float(q[3]), Gf.Vec3d(*map(float, q[:3]))))
         variants = robot.GetVariantSets()
         if variants.HasVariantSet("Physics"):
             physics_variant = variants.GetVariantSet("Physics")
@@ -136,6 +143,20 @@ def run(args):
             drive.CreateMaxForceAttr(number(gains["max_effort"]))
         if set(drives) - set(joint_paths):
             raise InputError("Drive configuration contains joints not found after import")
+        if config.get("tool_frame"):
+            from scipy.spatial.transform import Rotation
+            tool = config["tool_frame"]
+            parents = [p for p in stage.Traverse() if p.GetName() == tool["parent_link"] and p.HasAPI(UsdPhysics.RigidBodyAPI)]
+            if len(parents) != 1 or not tool.get("name", "").isidentifier():
+                raise InputError("Tool frame needs one rigid parent and an identifier name")
+            pose = vector(tool["xyz_rpy"], 6, "tool xyz_rpy")
+            q = Rotation.from_euler("xyz", pose[3:]).as_quat()
+            path = str(parents[0].GetPath()) + "/" + tool["name"]
+            if stage.GetPrimAtPath(path):
+                raise InputError("Tool frame path already exists")
+            xform = UsdGeom.Xform.Define(stage, path)
+            xform.AddTranslateOp().Set(Gf.Vec3d(*map(float, pose[:3])))
+            xform.AddOrientOp(precision=UsdGeom.XformOp.PrecisionDouble).Set(Gf.Quatd(float(q[3]), Gf.Vec3d(*map(float, q[:3]))))
         for material in config.get("materials", []):
             path = material["path"]
             surface = UsdShade.Material.Define(stage, path)

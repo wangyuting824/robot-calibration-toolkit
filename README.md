@@ -4,6 +4,22 @@
 
 工具包覆盖机构定义检查、URDF 生成、关节参考标定、限位记录核验、运动学拟合与独立验证、Isaac Sim 导入及数据对比。目标仿真版本固定为 **Isaac Sim 6.1.0 / PhysX**。真机 SDK 和测量设备型号确定后，需要完成并调试对应适配器。
 
+## 不依赖 Codex 的现场使用
+
+完整流程、测量工具、字段、单位、修改和复验位置见 [现场操作手册](docs/现场操作手册.html)（[PDF](docs/现场操作手册.pdf)）；完整的 15 类参数、11 类工具及 D01—D06 对应见 [现场参数与工具总表](docs/现场参数与工具总表.xlsx)。所有 23 条原 CLI 保留。
+
+Ubuntu x86_64 离线包自带独立 CPython 和依赖，可通过硬盘搬迁。Git 仓库只保存源码和文档，不含运行时二进制、旭创 CAD 或测量数据。离线包解压后运行：
+
+```bash
+bash 启动工具包.sh doctor
+bash 启动工具包.sh self-test --destination /tmp/robotcal-field-demo
+bash 启动工具包.sh status --project projects/旭创现场项目
+```
+
+`field.py` 支持初始化项目、参数修改与备份、双靶标坐标转换、时间配对、统一任务、修正结果应用、交付模型复验、附加零偏只读转换和完整项目备份。新报告使用相对证据路径及哈希，移动整个项目后可重新验证。Isaac、GPU 驱动、ROS 与厂家 SDK 需按目标电脑另装；机器相关 SDK 路径只写项目 `.machine.json`。
+
+在联网准备电脑重建离线包：下载 [Astral 官方独立 Python](https://github.com/astral-sh/python-build-standalone/releases)，核对官方 SHA-256，然后运行 `python examples/prepare_portable_runtime.py --python-archive 下载文件`；再用 `python field.py build-bundle --destination 新工具包目录 --project 现场项目目录` 打包。运行时依赖锁定、wheelhouse、第三方许可和逐文件 SHA-256 清单随包交接。源码安装步骤见下文。
+
 ## 程序来源与官方依据
 
 | 部分 | 依据 | 本工具包的实现性质 |

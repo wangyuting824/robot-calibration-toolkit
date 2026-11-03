@@ -16,6 +16,7 @@ jobs:
       - run: python -m pip install -e '.[test,usd]'
       - run: python -m pytest -q
       - run: python examples/run_offline_demo.py --destination /tmp/robotcal-demo
+      - run: python field.py self-test --destination /tmp/robotcal-field-demo
   mujoco:
     runs-on: ubuntu-latest
     env:

@@ -1,0 +1,725 @@
+{
+  "version": "field-R3-20261103",
+  "sheets": {
+    "阅读说明": [
+      [
+        "项目",
+        "说明"
+      ],
+      [
+        "项目主线",
+        "本清单针对旭创项目；OpenArm仅验证通用程序与链路，不作为旭创参数或精度证据。"
+      ],
+      [
+        "日期与性质",
+        "2026-11-03；交付物驱动的工具准备清单。型号、数量、精度、量程、预算与负责人均需在机构/接口和验收要求确认后确定。"
+      ],
+      [
+        "精度要求",
+        "原始DOCX正文及两张内嵌表未规定末端mm/deg、轨迹或动力学验收上限；configs/acceptance.yaml保持未定。"
+      ],
+      [
+        "必需的含义",
+        "必须具备相应测量或资料依据；不表示每一项都必须新购一台仪器。可复用厂家可信资料、设备自带功能、租赁或计量服务。"
+      ],
+      [
+        "三种位姿路线",
+        "相机加板、光学动捕、六维跟踪是替代路线；按现场测量能力择适用者，不要求全配。"
+      ],
+      [
+        "能力区分",
+        "六维位姿=位置+方向；六维力/力矩=力+力矩；二者不能互相替代。"
+      ],
+      [
+        "当前惯性能力",
+        "本地identify-dynamics基于已知连杆惯性拟合附加惯量/摩擦/偏置，不是全部连杆质量质心惯性的自动辨识器。"
+      ],
+      [
+        "当前接入缺项",
+        "旭创硬件运动/反馈接口、外部测量SDK、时间对齐和设备格式转换尚需接入及调试。"
+      ],
+      [
+        "机构缺项",
+        "腰腿闭环、夹爪与轮组待厂家确认；不同链按自身输出布置测量，末端板不能覆盖整机所有参数。"
+      ],
+      [
+        "限位边界",
+        "软件限制、开关触发、机械止挡、正常运行范围分别记录；机械端点检测采用本机厂家规程。"
+      ],
+      [
+        "来源性质",
+        "S01-S11/S13是官方或设备厂家资料；S12是本项目代码。官方接口文档不等于适用于所有机器人的测量动作规程。"
+      ],
+      [
+        "标定与验证",
+        "记录设备校准证据和测量能力；使用另采的独立验证数据。验收先定义条件/阈值，不能只用拟合误差宣称准确。"
+      ]
+    ],
+    "参数工具矩阵": [
+      [
+        "编号",
+        "参数对象",
+        "需确认或标定参数",
+        "工具/资料",
+        "必要性与条件",
+        "需采集或确认的数据",
+        "参数应用位置",
+        "对应交付",
+        "对应程序",
+        "边界与限制",
+        "来源编号"
+      ],
+      [
+        "M01",
+        "机构与关节定义",
+        "真实自由度、父子关系、固定/可动、联动/闭环",
+        "厂家机构图、STEP/CAD、现场核对；CAD 软件",
+        "必需资料确认",
+        "各刚体归属、连接图、K 编号与实物关节对应",
+        "参数主表、mechanisms.yaml",
+        "D01/D02/D03",
+        "validate-structure；build-urdf",
+        "末端测量不能自动确定整机拓扑；闭环需专门模型实现",
+        "S08/S12"
+      ],
+      [
+        "M02",
+        "轴线与几何",
+        "关节轴线、安装位置、零配置 origin/axis",
+        "厂家轴线图/CAD；需独立精测时采用合适三维计量设备或测量服务",
+        "定义必需；额外计量按误差要求",
+        "参考坐标、轴线上点、方向、几何安装依据",
+        "参数主表、URDF joint origin/axis",
+        "D01/D02",
+        "validate-structure；calibrate-kinematics（仅选定修正）；build-urdf",
+        "现有程序不自动发现轴线；不能任意放开全部几何参数",
+        "S08/S12"
+      ],
+      [
+        "M03",
+        "反馈与零位",
+        "方向、比例、减速关系、零偏",
+        "厂家 SDK/接口；零位工装或独立角度/位移参考及采集接口",
+        "零位/换算依据必需；独立复核方式按机构",
+        "原始反馈、独立参考角度/位移、零位和正向依据",
+        "反馈映射、joint_offsets.yaml；避免重复修正",
+        "D01/D02/D04",
+        "calibrate-joint-reference；build-urdf",
+        "电机反馈不自动等于关节输出；外置编码器需匹配安装",
+        "S04/S12"
+      ],
+      [
+        "M04",
+        "限位",
+        "软件边界、开关触发位置、制造商机械边界记录、运行范围",
+        "厂家调试软件；编码器；已有开关与位置锁存/同步采集；必要独立角度/位移参考",
+        "运行范围依据必需；开关只在有该硬件时",
+        "边界种类、触发瞬间位置、方向、重复记录及适用规程",
+        "limits.yaml、URDF limit、限位报告",
+        "D01/D02/D05",
+        "verify-joint-limits",
+        "机械止挡不直接作为正常运行范围；不提供通用撞止挡规程",
+        "S04/S05/S12"
+      ],
+      [
+        "M05",
+        "坐标与工具",
+        "测量坐标到基座、法兰到工具/靶标变换",
+        "独立六维位姿测量路线；基座/工具刚性靶标工装；安装尺寸依据",
+        "运动学标定必需能力",
+        "参考坐标定义、靶标安装关系、实测位姿及质量",
+        "frames 配置、TF/场景挂载、工具固定变换",
+        "D01/D02/D03",
+        "calibrate-kinematics；validate-kinematics；build-urdf",
+        "板坐标和末端坐标必须换算；避免基座/工具与关节参数耦合",
+        "S01/S02/S03/S12"
+      ],
+      [
+        "M06",
+        "运动学精度",
+        "零位及选定安装几何修正、末端位置/方向误差",
+        "相机+已知尺寸板+刚性工装；或动捕；或六维跟踪仪；厂家关节反馈",
+        "独立测量必需，三条路线选适用的一条",
+        "同姿态全部相关独立关节角、外部实测 XYZ+四元数、时间及质量",
+        "修正模型、映射与独立验证误差",
+        "D01/D02/D04/D05",
+        "calibrate-kinematics；validate-kinematics",
+        "标定与验证另采；相机重投影误差不等于真机 mm 精度",
+        "S01/S02/S03/S10/S11/S12"
+      ],
+      [
+        "M07",
+        "行程与联动",
+        "夹爪开度、直线轴行程、mimic 比例/偏置",
+        "合适位移传感器或长度量具；驱动和从动件反馈；必要位姿测量",
+        "有相应机构时必需",
+        "驱动量、从动量、开度/行程、联动规律",
+        "参数主表、mimic/约束配置",
+        "D01/D02/D03",
+        "validate-structure；build-urdf；需专用采集/求解适配",
+        "非线性联动不能强行拟合成 URDF 线性 mimic",
+        "S08/S12"
+      ],
+      [
+        "M08",
+        "额定与运行规格",
+        "允许速度、加速度、力/力矩与负载",
+        "厂家规格、驱动配置、适用验证记录及日志",
+        "必需资料确认",
+        "额定/峰值/运行值定义、单位、来源、控制模式",
+        "参数主表、URDF limit、执行约束与控制配置",
+        "D01/D02/D03/D06",
+        "validate-structure；run-test（输入约束检查）",
+        "不通过冲击、堵转或搜索极限来猜额定规格",
+        "S06/S12"
+      ],
+      [
+        "M09",
+        "质量",
+        "每个真实连杆及工具质量",
+        "经校验的秤；BOM/厂家质量资料；装配状态记录",
+        "动力学模型必需依据",
+        "质量、所含附件/线缆和工具负载",
+        "URDF inertial mass、负载配置",
+        "D01/D02/D03",
+        "validate-structure；build-urdf",
+        "装机不可拆时可用厂家可信资料；不强制拆机称重",
+        "S08/S13"
+      ],
+      [
+        "M10",
+        "质心与惯性",
+        "质心、惯性张量和对应坐标",
+        "完整材料/CAD质量属性+实物质量核对；或适用计量/系统辨识方案",
+        "动力学模型必需依据，方法择适用者",
+        "材料密度、质量分布、质心、惯性参考点/轴和单位",
+        "URDF inertial origin/inertia；辨识来源记录",
+        "D01/D02/D03",
+        "build-urdf；官方 SysID（仅适用参数及可观测数据）",
+        "称重不能直接测惯性；本地 identify-dynamics 不辨识全部连杆惯性",
+        "S06/S08/S13"
+      ],
+      [
+        "M11",
+        "执行器与摩擦",
+        "附加惯量、粘性/库仑摩擦、力矩偏置",
+        "厂家控制接口、同步遥测；选用力矩回归时需可信关节驱动力矩参考",
+        "开展对应辨识时必需",
+        "实际输入、q/dq/可靠ddq、所选残差需要的力矩、负载与工况",
+        "执行器/摩擦及仿真配置",
+        "D01/D03/D04/D05",
+        "identify-dynamics；run-nvidia-sysid",
+        "末端六维力不直接等于各关节驱动力矩；电流换算需验证",
+        "S06/S12"
+      ],
+      [
+        "M12",
+        "驱动与时间响应",
+        "刚度、阻尼、控制响应、适用延迟",
+        "真机指令/反馈记录；同步/触发能力；Isaac/PhysX 与 Gain Tuner/SysID",
+        "动力学对齐必需；同步盒按设备能力增配",
+        "控制模式、指令到达时间、目标/实测、饱和及前馈；本地回归另需独立PD分量",
+        "Isaac 驱动/控制/延迟配置与响应报告",
+        "D03/D04/D05",
+        "tune-drives；run-nvidia-sysid；validate-dynamics",
+        "不能将硬件增益直接照抄；总电机力矩不自动是 isolated_pd_effort",
+        "S06/S07/S12"
+      ],
+      [
+        "M13",
+        "接触",
+        "选定模型的摩擦、柔顺或恢复行为",
+        "匹配工况的测力装置（可用六维力/力矩传感器/测力台）+位移/速度测量+试件",
+        "接触交付包含时必需测量能力；不要求所有工况都六维测力",
+        "法向/切向力、相对位移/滑速、材料表面、负载、工况",
+        "接触配置、试验数据和验证报告",
+        "D01/D03/D04/D05",
+        "identify-contact；validate-dynamics",
+        "不同模型另设计实验；滑动数据不证明静摩擦；不能直接套用不匹配 PhysX 参数",
+        "S09/S06/S12"
+      ],
+      [
+        "M14",
+        "数据与同步",
+        "数据来源、单位、坐标、采样时间与事件",
+        "采集电脑、厂家和设备 SDK、记录与对齐程序；可用的硬件同步/PTP/触发",
+        "必需能力；具体同步设备待选型",
+        "原始图像/遥测/力数据、设备时钟、质量标志、校准证据、输入哈希",
+        "CSV/原始记录、manifest、采集适配器",
+        "D04/D05/D06",
+        "capture-data；run-test；设备格式转换/时间配对需实现",
+        "设备到达电脑的时间不自动是测量时间；不用行号对齐",
+        "S02/S06/S09/S12"
+      ],
+      [
+        "M15",
+        "独立验收与归档",
+        "几何误差、动态响应误差、适用工况与阈值",
+        "上述实测工具+Isaac；独立验证数据；项目报告打包程序",
+        "D05 正式验收必需",
+        "另采验证集、改前/改后误差、输入一致性、负载、版本/哈希、测量能力",
+        "报告、复现说明、D01-D06归档",
+        "D01-D06",
+        "validate-kinematics；validate-dynamics；generate-report；package-delivery",
+        "旭创尚未提供 mm/deg 上限；不得把合成/仿真通过升级成真机精度验收",
+        "S06/S12"
+      ]
+    ],
+    "工具准备清单": [
+      [
+        "编号",
+        "工具类别",
+        "工具配置",
+        "适用阶段",
+        "必要性",
+        "准备方式",
+        "当前状态",
+        "参数矩阵编号",
+        "备注"
+      ],
+      [
+        "T01",
+        "资料与CAD",
+        "机构图/关节表/厂家规格/完整CAD及材料",
+        "所有阶段",
+        "必需依据",
+        "旭创提供并确认；CAD软件可复用",
+        "待旭创补齐型号/版本/机构/零位/范围",
+        "M01/M02/M08/M10",
+        "资料确认不是仪器拟合"
+      ],
+      [
+        "T02",
+        "机器人接口",
+        "厂家 SDK、调试软件、线缆和控制器接口",
+        "所有实测",
+        "必需",
+        "协议由旭创确认，不沿用 OpenArm 接线",
+        "旭创接口待确认/适配",
+        "M03/M04/M06/M11/M12/M14",
+        "同时确认反馈单位、实际指令与力矩语义"
+      ],
+      [
+        "T03",
+        "采集与仿真计算",
+        "采集电脑、存储、Isaac Sim 6.1.0/PhysX工作站",
+        "所有阶段",
+        "必需能力",
+        "采集与仿真可以分机；现有电脑复用",
+        "已有软件基础；旭创实机链路待接入",
+        "M01-M15",
+        "现场不一定需要运行GPU仿真"
+      ],
+      [
+        "T04",
+        "角度/位移基准",
+        "厂家零位工装；独立角度编码器/适用位移仪器及接口",
+        "零位/限位/行程",
+        "基准必需；设备按机构选择",
+        "厂家可信基准/匹配工装或独立测量路线",
+        "工具及安装条件待确认",
+        "M03/M04/M07",
+        "禁止使用原反馈自证角度准确"
+      ],
+      [
+        "T05",
+        "边界事件采集",
+        "已有开关与驱动/PLC位置锁存，或同步采集模块",
+        "开关限位核验",
+        "有相应边界事件时",
+        "优先复用可验证的控制器功能",
+        "旭创是否有开关与锁存待确认",
+        "M04/M14",
+        "记录触发瞬间；不将停稳位置替代触发位置"
+      ],
+      [
+        "T06",
+        "独立位姿测量",
+        "相机/镜头/照明+ChArUco板；或动捕；或六维跟踪仪",
+        "运动学",
+        "独立测量能力必需；路线选一",
+        "视觉先评估；仪器可租赁或测量服务",
+        "用户确认暂无专用六维测量系统",
+        "M02/M05/M06",
+        "先验证现场测量能力；相机方案不预先承诺精度"
+      ],
+      [
+        "T07",
+        "工装与尺度",
+        "基座/末端刚性靶标支架、尺寸参考与适用量具",
+        "运动学与测量",
+        "必需",
+        "按实际安装和测量路线设计",
+        "待设计/准备",
+        "M03/M05/M06/M07",
+        "已知安装关系；板不能柔性晃动"
+      ],
+      [
+        "T08",
+        "质量与负载",
+        "经校验的秤、已知负载、BOM/材料质量属性",
+        "动力学",
+        "质量/惯性依据必需",
+        "可复用厂家可信资料；不强制拆机",
+        "原始惯性为测试值，需旭创确认",
+        "M09/M10/M11",
+        "称重本身不能给出质心/惯性"
+      ],
+      [
+        "T09",
+        "关节力矩依据",
+        "可信关节力矩传感反馈，或经验证的输出力矩换算",
+        "力矩回归/力矩验收",
+        "选用对应模型时必需",
+        "先核对厂家提供数据，避免盲目加传感器",
+        "旭创力矩反馈能力待确认",
+        "M11/M12/M15",
+        "末端F/T不能直接给出所有关节驱动力矩"
+      ],
+      [
+        "T10",
+        "接触测量",
+        "适用测力装置/六维F/T+采集器+位移速度参考+试件",
+        "力/接触",
+        "含接触交付时需匹配试验配置",
+        "单轴/多轴/测力台按需要选",
+        "设备及工况待确认",
+        "M13",
+        "六维力和六维位姿属于不同测量对象"
+      ],
+      [
+        "T11",
+        "时间同步",
+        "设备时间戳、触发/PTP/同步模块及配对程序",
+        "动态与多设备",
+        "同步能力必需；外部盒按需",
+        "静态停稳先做；动态按设备同步能力实施",
+        "具体方案待接口选型",
+        "M12/M14/M15",
+        "不从误差曲线任意时间平移美化结果"
+      ]
+    ],
+    "交付物映射": [
+      [
+        "交付编号",
+        "交付对象",
+        "覆盖内容",
+        "参数矩阵",
+        "所需工具组",
+        "交付说明"
+      ],
+      [
+        "D01",
+        "已确认参数主表及来源",
+        "结构、关节、反馈/零位、限位、惯性、执行器、接触",
+        "M01-M13",
+        "T01/T02/T04-T10",
+        "每项记录来源、方法、设备和确认状态"
+      ],
+      [
+        "D02",
+        "修正URDF与模型包",
+        "joint origin/axis/limit/mimic；inertial；网格和碰撞映射",
+        "M01-M10",
+        "T01-T08",
+        "反馈零偏、基座/工具变换单独配置且不重复施加"
+      ],
+      [
+        "D03",
+        "Isaac资产与配置",
+        "导入资产、场景挂载、约束、驱动、材料与适用动力学参数",
+        "M01/M05/M08-M13",
+        "T01-T03/T06-T11",
+        "Isaac Sim 6.1.0 / PhysX；闭环需专门实现"
+      ],
+      [
+        "D04",
+        "程序、适配器与原始数据",
+        "采集、转换、同步、求解、回放、manifest和原始记录",
+        "M03-M15",
+        "全部相关接口与计算工具",
+        "厂家和测量设备适配器不能由OpenArm成功代替"
+      ],
+      [
+        "D05",
+        "独立验证报告",
+        "标定前后误差、限位重复性、动态/接触响应及可复现证据",
+        "M04/M06/M11-M15",
+        "按已验收项目对应实测工具",
+        "阈值待旭创确认；独立验证数据另采"
+      ],
+      [
+        "D06",
+        "操作与复现说明",
+        "资料填写、装夹、采集、数据定义、来源、适用规程、复现步骤",
+        "M01-M15",
+        "项目软件与文档工具",
+        "设备/机器人运动规程必须与实际型号版本匹配"
+      ]
+    ],
+    "资料链接": [
+      [
+        "来源编号",
+        "来源性质",
+        "资料用途",
+        "官方/项目链接",
+        "适用边界"
+      ],
+      [
+        "S01",
+        "OpenCV 官方",
+        "ChArUco 板制作、识别及位姿估计",
+        "https://docs.opencv.org/4.13.0/df/d4a/tutorial_charuco_detection.html",
+        "视觉测量的算法依据；不承诺现场毫米精度"
+      ],
+      [
+        "S02",
+        "OpenCV 官方",
+        "相机内参与畸变标定",
+        "https://docs.opencv.org/4.13.0/da/d13/tutorial_aruco_calibration.html",
+        "固定板尺寸、图像分辨率及相机光学设置并记录版本"
+      ],
+      [
+        "S03",
+        "OpenCV 官方",
+        "PnP 六维位姿求解",
+        "https://docs.opencv.org/4.13.0/d5/d1f/calib3d_solvePnP.html",
+        "输出板相对相机的旋转和平移；另需安装坐标变换"
+      ],
+      [
+        "S04",
+        "HEIDENHAIN 厂家",
+        "独立角度编码器",
+        "https://www.heidenhain.com/products/encoders/angle-encoders",
+        "设备类别参考；安装、接口、精度和量程需按旭创机构选型"
+      ],
+      [
+        "S05",
+        "Beckhoff 厂家",
+        "参考事件位置锁存与减速停止位置",
+        "https://infosys.beckhoff.com/content/1033/tf5200_homing/343674123.html",
+        "原理参考；不替代旭创厂家的回零或机械止挡检测规程"
+      ],
+      [
+        "S06",
+        "NVIDIA 6.1.0 官方",
+        "System Identification",
+        "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_sysid.html",
+        "选定参数辨识、遥测、激励和独立验证；不自动生成适用实机试验"
+      ],
+      [
+        "S07",
+        "NVIDIA 6.1.0 官方",
+        "Gain Tuner",
+        "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_gain_tuner.html",
+        "仿真驱动增益与响应测试；不能把硬件增益直接照抄到 PhysX"
+      ],
+      [
+        "S08",
+        "NVIDIA 6.1.0 官方",
+        "URDF Importer",
+        "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/importer_exporter/ext_isaacsim_asset_importer_urdf.html",
+        "URDF 导入；物理参数仍需真实依据"
+      ],
+      [
+        "S09",
+        "ATI 厂家",
+        "六维力/力矩传感器安装和采集手册",
+        "https://www.ati-ia.com/products/ft/ft_literature.aspx",
+        "测力和力矩；不是位姿测量系统"
+      ],
+      [
+        "S10",
+        "OptiTrack 厂家",
+        "光学动捕及刚体跟踪",
+        "https://docs.optitrack.com/motive/rigid-body-tracking",
+        "相机空间标定后测刚体位姿；可作为视觉板方案的替代"
+      ],
+      [
+        "S11",
+        "Hexagon 厂家",
+        "机器人六维跟踪测量应用",
+        "https://hexagon.com/resources/resource-library/laser-tracker-corrects-exact-position-robots-aircraft-construction",
+        "跟踪仪需配匹配的六维靶标；可租用或使用测量服务"
+      ],
+      [
+        "S12",
+        "本项目代码",
+        "标定工具包",
+        "https://github.com/wangyuting824/robot-calibration-toolkit",
+        "项目实现；并非 NVIDIA 或机器人的官方标定程序"
+      ],
+      [
+        "S13",
+        "SOLIDWORKS 官方",
+        "质量、质心和惯性属性",
+        "https://help.solidworks.com/2022/English/SolidWorks/sldworks/HIDD_MASSPROPERTY_TEXT_DLG.htm",
+        "需核对材料、部件缺失、坐标和惯性符号；网站可能跳转到新版帮助"
+      ]
+    ]
+  },
+  "references": {
+    "S01": {
+      "owner": "OpenCV 官方",
+      "title": "ChArUco 板制作、识别及位姿估计",
+      "url": "https://docs.opencv.org/4.13.0/df/d4a/tutorial_charuco_detection.html",
+      "scope": "视觉测量的算法依据；不承诺现场毫米精度"
+    },
+    "S02": {
+      "owner": "OpenCV 官方",
+      "title": "相机内参与畸变标定",
+      "url": "https://docs.opencv.org/4.13.0/da/d13/tutorial_aruco_calibration.html",
+      "scope": "固定板尺寸、图像分辨率及相机光学设置并记录版本"
+    },
+    "S03": {
+      "owner": "OpenCV 官方",
+      "title": "PnP 六维位姿求解",
+      "url": "https://docs.opencv.org/4.13.0/d5/d1f/calib3d_solvePnP.html",
+      "scope": "输出板相对相机的旋转和平移；另需安装坐标变换"
+    },
+    "S04": {
+      "owner": "HEIDENHAIN 厂家",
+      "title": "独立角度编码器",
+      "url": "https://www.heidenhain.com/products/encoders/angle-encoders",
+      "scope": "设备类别参考；安装、接口、精度和量程需按旭创机构选型"
+    },
+    "S05": {
+      "owner": "Beckhoff 厂家",
+      "title": "参考事件位置锁存与减速停止位置",
+      "url": "https://infosys.beckhoff.com/content/1033/tf5200_homing/343674123.html",
+      "scope": "原理参考；不替代旭创厂家的回零或机械止挡检测规程"
+    },
+    "S06": {
+      "owner": "NVIDIA 6.1.0 官方",
+      "title": "System Identification",
+      "url": "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_sysid.html",
+      "scope": "选定参数辨识、遥测、激励和独立验证；不自动生成适用实机试验"
+    },
+    "S07": {
+      "owner": "NVIDIA 6.1.0 官方",
+      "title": "Gain Tuner",
+      "url": "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_gain_tuner.html",
+      "scope": "仿真驱动增益与响应测试；不能把硬件增益直接照抄到 PhysX"
+    },
+    "S08": {
+      "owner": "NVIDIA 6.1.0 官方",
+      "title": "URDF Importer",
+      "url": "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/importer_exporter/ext_isaacsim_asset_importer_urdf.html",
+      "scope": "URDF 导入；物理参数仍需真实依据"
+    },
+    "S09": {
+      "owner": "ATI 厂家",
+      "title": "六维力/力矩传感器安装和采集手册",
+      "url": "https://www.ati-ia.com/products/ft/ft_literature.aspx",
+      "scope": "测力和力矩；不是位姿测量系统"
+    },
+    "S10": {
+      "owner": "OptiTrack 厂家",
+      "title": "光学动捕及刚体跟踪",
+      "url": "https://docs.optitrack.com/motive/rigid-body-tracking",
+      "scope": "相机空间标定后测刚体位姿；可作为视觉板方案的替代"
+    },
+    "S11": {
+      "owner": "Hexagon 厂家",
+      "title": "机器人六维跟踪测量应用",
+      "url": "https://hexagon.com/resources/resource-library/laser-tracker-corrects-exact-position-robots-aircraft-construction",
+      "scope": "跟踪仪需配匹配的六维靶标；可租用或使用测量服务"
+    },
+    "S12": {
+      "owner": "本项目代码",
+      "title": "标定工具包",
+      "url": "https://github.com/wangyuting824/robot-calibration-toolkit",
+      "scope": "项目实现；并非 NVIDIA 或机器人的官方标定程序"
+    },
+    "S13": {
+      "owner": "SOLIDWORKS 官方",
+      "title": "质量、质心和惯性属性",
+      "url": "https://help.solidworks.com/2022/English/SolidWorks/sldworks/HIDD_MASSPROPERTY_TEXT_DLG.htm",
+      "scope": "需核对材料、部件缺失、坐标和惯性符号；网站可能跳转到新版帮助"
+    },
+    "S14": {
+      "owner": "ROS urdfdom maintainers",
+      "title": "ROS_URDF",
+      "url": "https://github.com/ros/urdfdom",
+      "scope": "URDF parser and model semantics; project parser is an independent subset implementation"
+    },
+    "S15": {
+      "owner": "ROS REP maintainers",
+      "title": "ROS_REP103",
+      "url": "https://github.com/ros-infrastructure/rep/blob/master/rep-0103.rst",
+      "scope": "SI units, coordinate conventions and right-handed frames"
+    },
+    "S16": {
+      "owner": "robot_calibration package maintainer; ROS community project",
+      "title": "ROS_CALIBRATION",
+      "url": "https://github.com/mikeferguson/robot_calibration",
+      "scope": "Free joint offsets, free frames, independent observations and calibration-result application; not a universal robot-vendor procedure"
+    },
+    "S17": {
+      "owner": "SciPy official documentation",
+      "title": "SCIPY_LS",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html",
+      "scope": "Bounded numerical least squares and robust losses; not a physical measurement procedure"
+    },
+    "S18": {
+      "owner": "SciPy official documentation",
+      "title": "SCIPY_LINEAR",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.lsq_linear.html",
+      "scope": "Bounded linear least squares; not proof of physical identifiability"
+    },
+    "S19": {
+      "owner": "Rigid-body dynamics algorithm author's primary documentation",
+      "title": "FEATHERSTONE",
+      "url": "https://royfeatherstone.org/spatial/v2/",
+      "scope": "Spatial algebra and recursive Newton-Euler algorithm; independently implemented, no Spatial_v2 code bundled"
+    },
+    "S20": {
+      "owner": "NVIDIA Isaac Sim 6.1.0 official documentation",
+      "title": "NVIDIA_IMPORT",
+      "url": "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.asset.importer.urdf/docs/index.html",
+      "scope": "URDFImporter and URDFImporterConfig API"
+    },
+    "S21": {
+      "owner": "NVIDIA Isaac Sim 6.1.0 official documentation",
+      "title": "NVIDIA_ARTICULATION",
+      "url": "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.core.experimental.prims/docs/index.html",
+      "scope": "Articulation position targets/state and RigidPrim tensor world poses"
+    },
+    "S22": {
+      "owner": "NVIDIA Isaac Sim 6.1.0 official documentation",
+      "title": "NVIDIA_VERSION",
+      "url": "https://docs.isaacsim.omniverse.nvidia.com/6.1.0/py/source/extensions/isaacsim.core.version/docs/index.html",
+      "scope": "Runtime application version and build information, checked before import and simulation"
+    },
+    "S23": {
+      "owner": "NVIDIA Omni Physics official documentation",
+      "title": "NVIDIA_PHYSICS",
+      "url": "https://docs.omniverse.nvidia.com/kit/docs/omni_physics/107.3/dev_guide/schemas/usdphysics.html",
+      "scope": "USD physics schemas; contact regression approximations are project code"
+    },
+    "S24": {
+      "owner": "OpenUSD official API documentation",
+      "title": "USD_DRIVE",
+      "url": "https://openusd.org/release/api/class_usd_physics_drive_a_p_i.html",
+      "scope": "Force/acceleration drives, angular degree units, stiffness, damping and effort limits"
+    },
+    "S25": {
+      "owner": "Basler 厂家",
+      "title": "相机电子快门类型",
+      "url": "https://docs.baslerweb.com/electronic-shutter-types",
+      "scope": "了解动态拍摄的滚动快门变形；设备选型参考，不预先承诺项目精度"
+    },
+    "S26": {
+      "owner": "OptiTrack 厂家",
+      "title": "动捕系统的空间标定与开始采集",
+      "url": "https://docs.optitrack.com/quick-start-guides/quick-start-guide-getting-started",
+      "scope": "先标定相机空间，再定义刚体和采集位姿"
+    },
+    "S27": {
+      "owner": "ATI 厂家",
+      "title": "六维力/力矩系统测量哪些量",
+      "url": "https://www.ati-ia.com/products/ft/ft_NetFT.aspx",
+      "scope": "说明Fx、Fy、Fz和三个力矩分量；与S09安装/采集手册配套阅读"
+    }
+  }
+}

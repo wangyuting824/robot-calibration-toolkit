@@ -5,6 +5,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -145,3 +146,26 @@ def result(command, payload, paths=(), status="computed"):
         "inputs": [{"path": str(p), "sha256": sha256(p)} for p in paths if p and Path(p).is_file()],
         **payload,
     }
+
+
+def portable_inputs(report, report_path):
+    """Anchor new evidence to its report, never to a workstation or caller cwd."""
+    parent = Path(report_path).resolve().parent
+    report["inputs"] = [dict(e, path=os.path.relpath(Path(e["path"]).resolve(), parent))
+                        for e in report.get("inputs", [])]
+    report["input_path_base"] = "report_directory"
+    return report
+
+
+def evidence_paths(report, report_path, verify=True):
+    """Read new relative evidence; retain legacy cwd/absolute evidence semantics."""
+    parent = Path(report_path).resolve().parent if report.get("input_path_base") == "report_directory" else Path.cwd()
+    paths = []
+    for entry in report.get("inputs", []):
+        if not isinstance(entry, dict) or not entry.get("path") or not entry.get("sha256"):
+            raise InputError("Evidence requires path and SHA-256")
+        path = (parent / entry["path"]).resolve()
+        if verify and (not path.is_file() or sha256(path) != entry["sha256"]):
+            raise InputError(f"Missing or changed evidence: {path}")
+        paths.append(path)
+    return paths
