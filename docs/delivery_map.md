@@ -12,6 +12,8 @@
 | capture-data | D04 | 数据和带来源的 manifest |
 | run-test | D04、D05 | 明确目标下的运行日志 |
 | calibrate-joint-reference | D01、D05 | 反馈换算与零位拟合 |
+| validate-joint-reference | D01、D02 配套、D05 | 独立参考验证、带模型与来源绑定的映射配置 |
+| map-joint-feedback | D04、D05 | 保留原始列的坐标换算数据、manifest 与拒绝记录 |
 | verify-joint-limits | D01、D05 | 限位记录核验与重复性 |
 | calibrate-kinematics | D01，供 D02 重建 | 选定关节及坐标修正 |
 | validate-kinematics | D05 | 独立位置与方向验证 |

@@ -1,0 +1,3 @@
+joint_reference:
+  joints: {}
+note: 为每个关节填写 target_joint、max_abs_error、minimum_validation_samples（程序要求至少3个不同参考位置）。误差单位同 reference_unit；阈值由项目要求和参考测量能力确定，没有默认实机精度。

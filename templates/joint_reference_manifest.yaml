@@ -1,0 +1,16 @@
+dataset_id: null
+role: calibration
+data_kind: real
+units: {length: m, angle: rad, time: s, effort: N_or_Nm}
+clock: null
+source: null
+sha256: null
+robot_id: null
+feedback_coordinates_id: null
+urdf_sha256: null
+raw_unit: null
+reference_unit: null
+reference_kind: null
+reference_instrument: null
+reference_definition: null
+note: 填写独立参考的定义和来源；验证集另存，role 改为 validation，sample_id 不得与拟合集重叠。开口宽度不是手指关节角。

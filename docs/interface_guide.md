@@ -8,6 +8,7 @@
 - IsaacAdapter：默认检查并调用 NVIDIA 6.1.0 文档 API，只发送仿真位置目标并读取位置/速度。报告记录实际版本和构建信息。不会把广义关节约束力当作已分离的电机驱动力矩输出。
 - OpenArmReadOnlyAdapter：调用已安装官方 codec 做状态查询与原始电机反馈采集；无运动接口，左右/零位未经独立确认时保留为 motor telemetry。详见 [OpenArm 验证](openarm_validation.md)。
 - Ros2JointStateAdapter：只订阅已有控制器的 JointState，保留发布者与接收时间、原始反馈值以及空缺的可选字段；不创建命令发布者。配置、换算边界与 MuJoCo 核对见 [MuJoCo 测试说明](mujoco_validation.md)。
+- MappedJointStateAdapter：对 ROS 只读订阅或 CSV 回放应用有依据的坐标换算，保留原始值；独立验证、候选限制与配置见 [反馈对齐说明](joint_feedback_alignment.md)。
 
 ## 厂家 SDK 适配器
 

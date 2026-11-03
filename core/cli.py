@@ -19,6 +19,8 @@ COMMANDS = {
     "capture-data": ("common.capture_data", "通过明确配置的接口采集或导入数据"),
     "run-test": ("common.run_test", "回放数据或执行明确指定的仿真/真机测试"),
     "calibrate-joint-reference": ("stage_02_kinematics.calibrate_joint_reference", "拟合反馈换算与零偏"),
+    "validate-joint-reference": ("stage_02_kinematics.validate_joint_reference", "用独立参考验证关节换算并导出映射"),
+    "map-joint-feedback": ("common.map_joint_feedback", "按有来源的映射换算记录；不发送硬件指令"),
     "verify-joint-limits": ("stage_02_kinematics.verify_joint_limits", "核验记录的限位，不搜索机械止挡"),
     "calibrate-kinematics": ("stage_02_kinematics.calibrate_kinematics", "拟合选定运动学参数"),
     "validate-kinematics": ("stage_02_kinematics.validate_kinematics", "用独立数据验证位姿误差"),
@@ -74,6 +76,13 @@ def parser():
             for name in ("interface", "manifest", "output_data", "output_manifest"):
                 option(name, required=True)
             option("max_samples", type=int, default=10000)
+        elif command == "validate-joint-reference":
+            for name in ("data", "manifest", "calibration", "acceptance", "urdf", "mapping_output"):
+                option(name, required=True)
+        elif command == "map-joint-feedback":
+            for name in ("data", "manifest", "mapping", "urdf", "output_data", "output_manifest"):
+                option(name, required=True)
+            option("allow_candidate", action="store_true")
         elif command == "run-test":
             option("target", required=True, choices=["replay", "sim", "real"])
             option("interface", required=True)
@@ -127,6 +136,7 @@ def main(argv=None):
     args = parser().parse_args(argv)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     destination = Path(args.output or f"outputs/{stamp}_{args.command}.json")
+    args.output = str(destination.resolve())
     sdk_required = args.command in ("build-isaac-asset", "validate-runtime-kinematics") or (args.command == "run-test" and args.target == "sim") or (
         args.command == "validate-isaac-asset" and importlib.util.find_spec("pxr") is None)
     if sdk_required and not args.sdk_worker:
@@ -152,7 +162,12 @@ def main(argv=None):
         report = result(args.command, {"error": str(exc), "error_type": type(exc).__name__}, status="blocked")
     report["methodology"] = basis(args.command)
     report["run_id"] = stamp
+    mapping_export = report.pop("_mapping_export", None)
     save(destination, report)
+    if mapping_export is not None:
+        from core.io import sha256
+        mapping_export["validation"]["sha256"] = sha256(destination)
+        save(args.mapping_output, mapping_export)
     print(f"{report['command']}: {report['status']}\nResult: {destination}")
     if report.get("error"):
         print(report["error"], file=sys.stderr)

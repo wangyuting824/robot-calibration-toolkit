@@ -43,6 +43,8 @@ python examples/run_offline_demo.py --destination /tmp/robotcal-demo
 
 新增不接管硬件的 ROS 2 关节状态采集适配器，以及 MuJoCo URDF 编译、模型/FK 检查和查看器。使用 `python -m pip install -e '.[test,mujoco]'` 安装可选依赖；操作、输出和官方依据见 [MuJoCo 测试说明](docs/mujoco_validation.md)。这条流程用于程序检查，D03 的 Isaac Sim 6.1.0 交付要求继续保留。
 
+反馈与模型坐标不一致时，新增 `validate-joint-reference`、`map-joint-feedback` 和只读换算适配器，接通拟合、独立验证、配置导出与复验。使用步骤、配对数据模板、D01—D06 对应及官方依据见 [反馈对齐说明](docs/joint_feedback_alignment.md)。
+
 ## 使用现有机器人资料
 
 现有三份文件放在本目录的上一层，保持其原文件名。仓库只保存路径清单；可修改 `inputs/source_manifest.yaml` 指向实际位置。

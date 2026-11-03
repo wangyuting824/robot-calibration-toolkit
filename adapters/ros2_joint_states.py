@@ -9,7 +9,7 @@ import time
 from core.io import InputError, number
 
 
-def message_rows(message, sequence, received_t, expected):
+def message_rows(message, sequence, received_t, expected, unavailable_velocity=(), unavailable_effort=()):
     names = list(message.name)
     if not names or len(set(names)) != len(names):
         raise InputError("JointState names must be nonempty and unique")
@@ -26,8 +26,10 @@ def message_rows(message, sequence, received_t, expected):
     return [{"sequence": sequence, "t": number(received_t), "stamp_sec": sec, "stamp_nanosec": ns,
         "frame_id": message.header.frame_id, "joint": name,
         "q": number(message.position[i]),
-        "dq": number(message.velocity[i]) if len(message.velocity) else "",
-        "effort": number(message.effort[i]) if len(message.effort) else "",
+        "dq": number(message.velocity[i]) if len(message.velocity) and name not in unavailable_velocity else "",
+        "effort": number(message.effort[i]) if len(message.effort) and name not in unavailable_effort else "",
+        "dq_published": number(message.velocity[i]) if len(message.velocity) else "",
+        "effort_published": number(message.effort[i]) if len(message.effort) else "",
         "joint_mapping_verified": False, "effort_reference_calibrated": False}
         for i, name in enumerate(names)]
 
@@ -40,12 +42,16 @@ class Ros2JointStateAdapter:
         self.timeout = number(config.get("timeout_s", 10))
         self.expected = config.get("expected_joints", [])
         self.topic = config.get("topic", "/joint_states")
+        self.unavailable_velocity = config.get("unavailable_velocity_joints", [])
+        self.unavailable_effort = config.get("unavailable_effort_joints", [])
         if isinstance(self.count, bool) or not isinstance(self.count, int) or not 1 <= self.count <= 10000:
             raise InputError("Configure messages in 1..10000")
         if not 0 < self.timeout <= 300 or not isinstance(self.topic, str) or not self.topic.startswith("/"):
             raise InputError("Configure timeout_s in (0,300] and an absolute state topic")
         if not self.expected or len(set(self.expected)) != len(self.expected):
             raise InputError("Configure unique expected_joints to reject unrelated state messages")
+        if (set(self.unavailable_velocity) | set(self.unavailable_effort)) - set(self.expected):
+            raise InputError("Unavailable fields reference joints outside expected_joints")
         import rclpy
         from rclpy.context import Context
         from rclpy.executors import SingleThreadedExecutor
@@ -81,7 +87,8 @@ class Ros2JointStateAdapter:
             stamp = (message.header.stamp.sec, message.header.stamp.nanosec)
             if stamp == (0, 0) or (previous_stamp is not None and stamp <= previous_stamp):
                 raise InputError("JointState timestamps must be nonzero and strictly increasing")
-            rows = message_rows(message, sequence, received - started, self.expected)
+            rows = message_rows(message, sequence, received - started, self.expected,
+                self.unavailable_velocity, self.unavailable_effort)
             previous_stamp = stamp
             yield from rows
 

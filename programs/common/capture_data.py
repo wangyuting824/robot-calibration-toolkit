@@ -19,10 +19,16 @@ def run(args):
         raise InputError("max_samples must be positive")
     cfg = load(args.interface)
     meta = load(args.manifest)
+    if Path(args.output_data).resolve() == Path(args.output_manifest).resolve():
+        raise InputError("Dataset and manifest must use different output paths")
+    if Path(args.output_data).exists() or Path(args.output_manifest).exists():
+        raise InputError("Output dataset or manifest already exists; choose new recording names")
     adapter = load_adapter(cfg)
     if getattr(adapter, "capabilities", {}).get("read_state") is not True:
         raise InputError("Adapter does not support data acquisition")
     try:
+        if hasattr(adapter, "export_metadata"):
+            meta = adapter.export_metadata(meta)
         rows = []
         for row in adapter.samples():
             rows.append(row)
