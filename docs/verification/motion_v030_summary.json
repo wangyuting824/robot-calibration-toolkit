@@ -7,9 +7,9 @@
     "errors": "0",
     "failures": "0",
     "skipped": "0",
-    "tests": "140",
-    "time": "8.397",
-    "timestamp": "2026-11-04T15:49:48.087783+08:00"
+    "tests": "141",
+    "time": "8.799",
+    "timestamp": "2026-11-04T15:57:36.793280+08:00"
   },
   "ros_protocol": {
     "status": "passed",
@@ -114,5 +114,6 @@
     "控制关节.sh",
     "启动工具包.sh motion",
     "motion.py"
-  ]
+  ],
+  "classified_delivery_test": "D04 source extracted to a different directory and 控制关节.sh demo executed successfully"
 }

@@ -125,6 +125,34 @@ def test_old_run_result_is_preserved(motion_profile, tmp_path):
     assert (output/"result.json").read_text() == '{"original":true}'
 
 
+def test_classified_delivery_runs_motion_launcher_after_extraction(demo, tmp_path):
+    import os
+    import subprocess
+    import sys
+    from zipfile import ZipFile
+    from core.fieldwork import init_project, export
+    from core.io import save
+    root = Path(__file__).resolve().parents[1]
+    archive = tmp_path/"model.zip"
+    with ZipFile(archive, "w") as z:
+        z.write(demo/"nominal.urdf", "model/robot.urdf")
+    project = tmp_path/"field"
+    init_project(NS(project=project, archive=archive, docx=None, step=None), root)
+    (project/"models/READINESS.txt").write_text("SYNTHETIC stage delivery only")
+    save(project/"results/R01/readiness.json", {"status": "pending", "data_kind": "synthetic"})
+    destination = tmp_path/"delivery.zip"
+    export(project, "R01", root, destination, False)
+    moved = tmp_path/"解压后 更换目录"
+    with ZipFile(destination) as z:
+        for member in z.namelist():
+            if member.startswith("D04/"):
+                z.extract(member, moved)
+    completed = subprocess.run(["bash", str(moved/"D04/控制关节.sh"), "demo", "--destination", str(tmp_path/"new demo")],
+        env=dict(os.environ, ROBOTCAL_PYTHON=sys.executable), cwd=tmp_path, capture_output=True, text=True)
+    assert completed.returncode == 0, completed.stderr
+    assert (tmp_path/"new demo/mujoco.yaml").is_file()
+
+
 def test_same_controller_lock_blocks_another_execution(tmp_path):
     with motion_lock(tmp_path/"controller.lock"):
         with pytest.raises(MotionError, match="Another"):

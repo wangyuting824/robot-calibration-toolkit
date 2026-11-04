@@ -377,6 +377,8 @@ def export(project, rev, root, destination, final):
         {"delivery": "D04", "path": str(root/"examples")}, {"delivery": "D04", "path": str(root/"field.py")},
         {"delivery": "D04", "path": str(root/"run.py")}, {"delivery": "D04", "path": str(root/"pyproject.toml")},
         {"delivery": "D04", "path": str(root/"启动工具包.sh")},
+        {"delivery": "D04", "path": str(root/"motion.py")},
+        {"delivery": "D04", "path": str(root/"控制关节.sh")},
         {"delivery": "D05", "path": f"results/{rev}"}, {"delivery": "D05", "path": f"reports/{rev}"},
         {"delivery": "D06", "path": str(root/"docs")},
     ]

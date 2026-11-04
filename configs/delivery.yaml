@@ -12,6 +12,8 @@ artifacts:
   - {delivery: D04, path: templates}
   - {delivery: D04, path: examples}
   - {delivery: D04, path: run.py}
+  - {delivery: D04, path: motion.py}
+  - {delivery: D04, path: 控制关节.sh}
   - {delivery: D04, path: pyproject.toml}
   - {delivery: D04, path: inputs/measurements}
   - {delivery: D05, path: deliverables/D05_reports}
