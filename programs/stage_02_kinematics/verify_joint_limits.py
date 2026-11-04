@@ -6,10 +6,10 @@ from core.io import InputError, dataset, load, number, result
 def run(args):
     rows, meta = dataset(args.data, args.manifest, ("joint", "boundary", "angle"), "validation")
     specification = load(args.specification)
-    if meta.get("event_kind") not in ("software_boundary", "switch_latch", "manufacturer_stop_record"):
+    if meta.get("event_kind") not in ("software_boundary", "switch_latch", "operating_range_check", "manufacturer_stop_record"):
         raise InputError("Declare event_kind; final stopped positions are not switch-latch measurements")
     if not meta.get("procedure_reference"):
-        raise InputError("Supply the actual manufacturer's procedure reference; no generic probing procedure is assumed")
+        raise InputError("Supply the applicable project/component procedure reference; no generic probing procedure is assumed")
     known = specification.get("joints", {})
     if set(r["joint"] for r in rows) - set(known):
         raise InputError("Measurements contain a joint absent from the limit specification")

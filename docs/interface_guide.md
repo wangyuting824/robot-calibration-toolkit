@@ -18,7 +18,7 @@ RobotAdapter 和 MetrologyAdapter 是待接入接口。它们在未实现时明�
 
 1. 根据厂家 SDK 实现 read_state、command、stop、close。
 2. capabilities 明确声明 read_state、command、watchdog、stop。
-3. 配置 manufacturer_procedure、commissioning_reference、limits_confirmed 和起点容差。
+3. 配置 operating_procedure（适用的项目调试/试验规程）、procedure_owner、commissioning_reference、limits_confirmed 和起点容差。拼装整机由项目建立规程，不要求存在整机厂家。旧 manufacturer_procedure 仅作兼容。
 4. 保证反馈与命令使用同一套 SI 关节坐标，正确应用反馈换算和零偏，命令执行逆换算。
 5. 完成设备特定的状态有效性、看门狗、通信中断和停止行为调试。
 

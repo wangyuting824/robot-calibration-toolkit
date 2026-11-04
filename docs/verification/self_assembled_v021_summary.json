@@ -1,0 +1,24 @@
+{
+  "version": "0.2.1",
+  "date": "2026-11-04",
+  "scope": "Project-owned procedures for assembled robots, recorded operating-range checks, practical measurement and URDF application guide",
+  "pytest": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "114",
+    "time": "8.655",
+    "timestamp": "2026-11-04T15:02:12.600933+08:00"
+  },
+  "network_disabled_self_test": "completed; includes relocation, reference mapping, kinematic holdout, apply and verify-applied",
+  "physical_hardware_accessed": false,
+  "new_isaac_runtime_test_performed": false,
+  "prior_isaac_evidence": "field_deployment_20261103_summary.json",
+  "private_materials": "Supplementary source workbook retained only in ignored private project; no auto-confirmation or URDF parameter change",
+  "limitations": [
+    "Physical measurement equipment and source definitions must be verified on site",
+    "Unknown hardware/controller adapters remain project-specific",
+    "This release does not claim real-robot calibration or acceptance"
+  ]
+}

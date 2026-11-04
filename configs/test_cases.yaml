@@ -1,4 +1,6 @@
 test_cases: []
-manufacturer_procedure: null
+operating_procedure: null
+procedure_owner: null
+manufacturer_procedure: null # 旧字段可选
 payload: null
-note: 真机动作应来自厂家允许的测试计划；工具包不自动生成极限搜索动作。
+note: 真机动作应来自整机项目确认的测试计划，依据部件规格和装配约束；工具包不自动生成极限搜索动作。

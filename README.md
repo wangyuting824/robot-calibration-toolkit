@@ -4,9 +4,13 @@
 
 工具包覆盖机构定义检查、URDF 生成、关节参考标定、限位记录核验、运动学拟合与独立验证、Isaac Sim 导入及数据对比。目标仿真版本固定为 **Isaac Sim 6.1.0 / PhysX**。真机 SDK 和测量设备型号确定后，需要完成并调试对应适配器。
 
+拼装整机由项目建立真实机构、坐标、零位、运行范围和试验规程；零部件资料提供协议及额定约束。`operating_procedure` 接受本项目适用规程，`manufacturer_procedure` 只兼容旧配置，不要求存在整机厂家。`operating_range_check` 核验已评估的工作范围端点，不证明机械极限。来源必须可追溯，确认状态不能由资料文件名自动推断。
+
 ## 不依赖 Codex 的现场使用
 
 完整流程、测量工具、字段、单位、修改和复验位置见 [现场操作手册](docs/现场操作手册.html)（[PDF](docs/现场操作手册.pdf)）；完整的 15 类参数、11 类工具及 D01—D06 对应见 [现场参数与工具总表](docs/现场参数与工具总表.xlsx)。所有 23 条原 CLI 保留。
+
+零位、限位、惯性、执行器、接触和机构的实际测量步骤，以及测完后改哪里，先读 [拼装机器人：参数怎么测、URDF怎么改](docs/拼装机器人参数测量与URDF修改.html)（[PDF](docs/拼装机器人参数测量与URDF修改.pdf)）。
 
 Ubuntu x86_64 离线包自带独立 CPython 和依赖，可通过硬盘搬迁。Git 仓库只保存源码和文档，不含运行时二进制、旭创 CAD 或测量数据。离线包解压后运行：
 
@@ -31,7 +35,7 @@ bash 启动工具包.sh status --project projects/旭创现场项目
 | 驱动与测试 | [NVIDIA Gain Tuner](https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_gain_tuner.html)、[OpenUSD DriveAPI](https://openusd.org/release/api/class_usd_physics_drive_a_p_i.html) | 采用文档中的力驱动 PD 形式；本地增益拟合有严格的数据适用条件 |
 | 官方系统辨识 | [NVIDIA 6.1.0 System Identification（Beta）](https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_sysid.html) | 调用安装的官方 headless 工具；已核对本机扩展 2.2.3 的脚本接口，实际辨识需要适用遥测与 recipe |
 | 本地动力学计算 | [Roy Featherstone 算法作者资料](https://royfeatherstone.org/spatial/v2/) | 独立编写固定基座 RNEA，结合有约束回归；没有捆绑或复制 Spatial_v2 源码 |
-| 真机关节限位 | 本机厂家规程必须提供；[Beckhoff 官方资料](https://infosys.beckhoff.com/content/1033/tf5200_homing/343674123.html?id=1788924359209060089)仅说明参考事件与停稳位置的区别 | 核验已有测量记录，不生成未知机械止挡搜索动作 |
+| 真机关节限位 | 适用的整机项目规程与部件约束；[Beckhoff 官方资料](https://infosys.beckhoff.com/content/1033/tf5200_homing/343674123.html?id=1788924359209060089)仅说明参考事件与停稳位置的区别 | 核验已有测量记录，不生成未知机械止挡搜索动作 |
 
 完整来源、适用边界和逐程序映射见 [docs/sources.md](docs/sources.md)、[docs/sources.yaml](docs/sources.yaml)。每次运行的 JSON 都附带对应来源。
 
@@ -78,7 +82,7 @@ python run.py validate-structure \
 
 生成的主表保留基线数值并明确标为 unconfirmed。±20°、0.5 rad/s、20 N·m 及质量惯性仍属于测试数据。程序不会自动将它们升级为实机参数，也不会把缺少的结构主表当作已恢复。
 
-厂家确认并填好参数、机构表后，生成模型：
+项目依据装配、部件资料和测量确认参数、机构表后，生成模型：
 
 ```bash
 python run.py build-urdf \

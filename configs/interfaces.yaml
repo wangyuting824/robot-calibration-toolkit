@@ -1,5 +1,7 @@
 class: adapters.robot_adapter_template:RobotAdapter
-manufacturer_procedure: null
+operating_procedure: null
+procedure_owner: null
+manufacturer_procedure: null # 兼容旧配置；自研整机无需此项，填写项目规程 operating_procedure
 commissioning_reference: null
 limits_confirmed: false
 start_tolerance_rad_or_m: null

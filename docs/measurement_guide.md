@@ -1,6 +1,6 @@
 # 测量输入与方法边界
 
-本文件规定程序接受的数据，不提供未知机器人的通用运动试验规程。实际测量动作、负载、速度、回零和止挡检测应引用本机厂家或设备官方规程。当前没有这些资料时先记录缺项。
+本文件规定程序接受的数据，不提供未知机器人的通用运动试验规程。拼装整机的测量动作、负载、速度、参考位置和边界检查采用本项目建立并确认的规程，依据部件规格、装配约束和测量能力；不要求存在整机厂家。
 
 ## 通用 manifest
 
@@ -14,11 +14,11 @@
 
 ## 限位记录
 
-列：joint, boundary（lower/upper）, angle。manifest 填 event_kind 和实际 procedure_reference。支持 software_boundary、switch_latch、manufacturer_stop_record。
+列：joint, boundary（lower/upper）, angle。manifest 填 event_kind 和实际 procedure_reference。支持 software_boundary、switch_latch、operating_range_check、manufacturer_stop_record。
 
-规格表按关节填写 lower、upper、kind、source、tolerance、repeatability_peak_to_peak、minimum_repeats。程序比较已有记录、重复性与明确规格，不自动制定裕量，不从电流推断止挡，不把停稳位置当成触发沿锁存位置。
+规格表按关节填写 lower、upper、kind、source、tolerance、repeatability_peak_to_peak、minimum_repeats。自研整机可用 operating_range_check 核对已经评估的工作范围端点；该记录不证明完整机械行程。程序比较已有记录、重复性与明确规格，不自动制定裕量，不从电流推断止挡，不把停稳位置当成触发沿锁存位置。
 
-关于事件位置与制动后的停稳位置差异，参见 sources 中的 Beckhoff 说明。该参考不能替代本机厂家规程。
+关于事件位置与制动后的停稳位置差异，参见 sources 中的 Beckhoff 说明。该参考不能替代本项目的实际机构与控制规程。
 
 ## 运动学
 

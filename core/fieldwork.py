@@ -97,7 +97,7 @@ def init_project(a, root):
     if project.exists() and any(project.iterdir()):
         raise InputError("项目目录必须不存在或为空，避免覆盖资料")
     if not archive.is_file():
-        raise InputError("找不到厂家模型 ZIP")
+        raise InputError("找不到原始模型 ZIP")
     project.mkdir(parents=True, exist_ok=True)
     for name in ("originals", "parameters", "data/raw", "results", "models", "reports", "delivery"):
         (project / name).mkdir(parents=True, exist_ok=True)
@@ -251,7 +251,7 @@ def run_job(project, name, rev, root):
             values = value if isinstance(value, list) else [value]
             expanded = [str(v).format(revision=rev, baseline=cfg["baseline"]) for v in values]
             if "--execute" in expanded or key == "execute":
-                raise InputError("现场 job 不开放 execute；参照适用厂家规程使用底层命令")
+                raise InputError("现场 job 不开放 execute；参照适用项目/部件规程使用底层命令")
             args.extend([flag, *expanded])
     args.extend(["--output", str(dest)])
     sdk_jobs = {"build-isaac-asset", "validate-runtime-kinematics", "run-nvidia-sysid"}

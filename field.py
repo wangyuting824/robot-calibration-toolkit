@@ -18,7 +18,7 @@ def parser():
     d = sub.add_parser("doctor", help="检查本机环境及可选 SDK，不启动机器人")
     d.add_argument("--project")
     d.add_argument("--output")
-    i = sub.add_parser("init", help="从厂家 ZIP 建立独立项目；不会确认任何参数")
+    i = sub.add_parser("init", help="从原始模型 ZIP 建立独立项目；不会确认任何参数")
     i.add_argument("--project", required=True)
     i.add_argument("--archive", required=True)
     for key in ("docx", "step"):

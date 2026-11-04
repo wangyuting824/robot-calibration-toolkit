@@ -37,8 +37,9 @@ def run(args):
     if args.target == "real":
         if not args.execute:
             raise InputError("Real execution requires explicit --execute; input validation alone never moves hardware")
-        if not interface.get("commissioning_reference") or not interface.get("manufacturer_procedure"):
-            raise InputError("Real execution requires documented commissioning and manufacturer procedure")
+        procedure = interface.get("operating_procedure") or interface.get("manufacturer_procedure")
+        if not isinstance(procedure, str) or not procedure.strip() or not interface.get("commissioning_reference"):
+            raise InputError("Real execution requires documented commissioning and an applicable project operating procedure (legacy manufacturer_procedure is also accepted)")
         if not interface.get("limits_confirmed"):
             raise InputError("Real hardware operating limits are not confirmed")
         if interface.get("class") in ("adapters.replay_adapter:ReplayAdapter", "adapters.isaac_adapter:IsaacAdapter"):

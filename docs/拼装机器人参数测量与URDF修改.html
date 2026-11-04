@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>拼装机器人：参数怎么测、URDF怎么改</title>
+<style>
+body{font:16px/1.8 "Noto Sans CJK SC","Microsoft YaHei",sans-serif;max-width:1100px;margin:32px auto;padding:0 24px;color:#18334b}h1,h2,h3{color:#174974}h2{border-bottom:1px solid #b8ccdc;padding-top:18px}a{color:#125cc1;overflow-wrap:anywhere}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid #c5d5e0;padding:10px;vertical-align:top}th{background:#e9f2f8}pre{background:#eef3f7;padding:16px;white-space:pre-wrap;overflow-wrap:anywhere}code{background:#eef3f7}.note{border-left:4px solid #3282b8;background:#f0f6fa;padding:12px 18px}nav{display:flex;flex-wrap:wrap;gap:8px 18px;background:#eef4f8;padding:14px}@page{size:A4;margin:15mm}@media print{body{font-size:11px;line-height:1.55;margin:0;padding:0}table{font-size:10px}nav,button{display:none}h2{break-before:auto;break-after:avoid}a{color:inherit}}
+</style>
+<h1>拼装机器人：参数怎么测、URDF怎么改</h1>
+<p>2026-11-04 · 配套工具包 0.2.1 · 按自研/零部件集成整机编写</p>
+<p><a href="现场操作手册.html">完整操作手册、全部字段与 D01—D06 交付</a> · <a href="现场参数与工具总表.xlsx">参数与工具总表</a> · <a href="https://github.com/wangyuting824/robot-calibration-toolkit">工具包源码</a></p>
+<button onclick="window.print()">打印 / 另存为 PDF</button>
+<nav><a href="#sequence">顺序与工具</a><a href="#structure">本体结构</a><a href="#reference">反馈和零位</a><a href="#limits">限位</a><a href="#inertia">质量惯性</a><a href="#actuator">执行器</a><a href="#contact">接触</a><a href="#align">URDF 对齐</a><a href="#handoff">现场采集与交付</a><a href="#sources">资料链接</a></nav>
+<p class="note"><b>项目自己建立整机定义，不以存在“整机厂家”为前提。</b>部件手册用于核对部件能力；装机后的轴线、坐标、负载、范围、控制模式和规程由项目建立并验证。本文是基于下列官方接口与算法编写的工程流程，不是 NVIDIA 发布或认证的通用整机测量规程。所有实机动作需由了解本体与控制系统的现场人员按已确认工况执行；本页不提供未知机器人的通用速度、力矩或极限搜索动作。</p>
+
+<section id="sequence"><h2>1. 先做哪一步，先准备哪些工具</h2>
+<p><b>结构与关节编号 → 参考姿态/反馈换算 → 工作范围核对 → 几何标定 → 质量惯性 → 驱动辨识 → 接触辨识 → 独立复验。</b>几何位置没有对齐时，先调摩擦和驱动增益不能解决结构错误。</p>
+<table><tr><th>能力</th><th>工具</th><th>能得到什么、什么时候需要</th></tr>
+<tr><td>读取真实反馈</td><td>现场电脑、控制器/驱动调试软件或协议接口、匹配的 CAN/以太网等连接</td><td>电机/输出端读数、时间、单位、控制模式、实际输入。第一批必需；具体线缆和适配器等确认部件协议后选。</td></tr>
+<tr><td>核对装配</td><td>完整装配 CAD、BOM、部件资料、相机、卷尺/卡尺；需要时租用三维计量设备</td><td>刚体分组、安装尺寸、轴线、装配对应。卡尺适合可达尺寸，不独立提供任意空间轴线与六维末端位姿。</td></tr>
+<tr><td>独立关节参考</td><td>可复现参考工装；适合轴结构的输出端角度编码器/角度测量装置；直线轴用独立位移装置</td><td>raw 对应的实际关节角/位移。角度尺/倾角仪只适合其安装与轴向条件，不能保证任意关节精度。</td></tr>
+<tr><td>独立空间位姿</td><td>一条验证过能力的相机+标定板、光学动捕或六维跟踪路线；基座/末端刚性靶标和支架</td><td>基座与末端的 XYZ 和方向。精确几何标定必需；可以租赁/测量服务，不要求购买所有设备。单球位置靶和六维力传感器不提供完整六维位姿。</td></tr>
+<tr><td>质量惯性</td><td>适合量程的校验秤、含材料/内部部件的 CAD 质量属性；不足时用适用惯量测量或辨识服务</td><td>每个真实刚体的质量、质心与惯性。空壳 STEP 或一份组件总重不能给出完整连杆惯性。</td></tr>
+<tr><td>力与接触</td><td>校准的力/力矩传感器、匹配采集器与刚性夹具；位移/速度观测；已知材料试样</td><td>法向/切向力、变形、滑动、接触前后速度。若已装腕部六维力可以评估复用；仍需型号、校准、坐标、载荷与安装核对。</td></tr>
+</table>
+<p>设备选型要结合项目约定的 mm/°/轨迹与动态误差。显示分辨率、产品重复定位指标、相机重投影像素误差，都不能直接当作本项目整机绝对精度。阈值未定时如实记录测量能力和结果，不自动宣称验收。</p></section>
+
+<section id="structure"><h2>2. 本体结构怎么校验</h2>
+<ol><li><b>先分刚体，再数关节。</b>没有相对运动的零件通常合为一个刚体；CAD 零件数量不等于自由度。列出每个可动连接的父件、子件、固定/旋转/直线类型、主动/被动、联动、闭环。</li>
+<li><b>把实物和软件一一对应。</b>每个连接建立“装配件编号 / 物理关节 / 驱动设备ID / 反馈通道 / URDF joint 名称”，拍照标记。不凭左右称呼推断接线或轴向。</li>
+<li><b>确定坐标。</b>在可复现参考姿态下，以设计中的轴承/轴/导轨为起点，定义基座、连杆、关节、工具和传感器坐标。轴线上一点与方向必须在明确的坐标系中；URDF 的 axis 写在关节坐标系中。</li>
+<li><b>验证实际相对运动。</b>在已经确认的区域内，观察相邻刚体的实测相对姿态。可用输出端角度/位移参考或外部位姿数据检查实际旋转/直线轴、正方向、安装偏差、间隙及耦合。精确轴线需足够位置覆盖与匹配的空间计量能力；本工具不会从图片或末端 CSV 自动识别机构拓扑。</li>
+<li><b>先修错结构。</b>父子关系、自由度、轴线或闭环错误先修改模型定义，再做几何优化。URDF 是树；实体闭环另在仿真中建立经过验证的约束。非线性连杆不能用随意的常数 mimic 代替。</li></ol>
+<p>填写 <code>parameters/robot_parameters.xlsx</code> 的 joints、geometry、mechanisms、frames，并在 <code>configs/mechanisms.yaml</code> 说明联动/闭环。保留 CAD/实物/测量证据，未核实项不改 confirmed。运行 <code>structure</code> 检查字段、树、轴及数值；程序通过不证明实物结构已经核对。</p>
+<p>格式依据见 <a href="https://github.com/ros/urdfdom_headers/blob/master/include/urdf_model/joint.h">urdfdom 关节定义</a>；基于观测修正关节/坐标偏差的参考见 <a href="https://github.com/mikeferguson/robot_calibration">ROS robot_calibration 维护者仓库</a>。后者是社区项目，不是本机运动规程。</p></section>
+
+<section id="reference"><h2>3. 反馈和电机零位怎么测</h2>
+<p><b>先区别两个“零位”。</b>电机换相/电角度零位用于驱动内部控制，应按对应电机与驱动资料处理；它不等于 URDF 的关节零位。URDF 零位是输出关节的可复现参考位置。做 URDF 标定通常是建立换算，不需要清零编码器或修改换相参数。</p>
+<ol><li>确认反馈来自电机端还是减速器输出端，单位是计数/度/弧度/长度，是否多圈、回卷、上电复位；确认传动形式和正方向。保留原始计数/度等数据，按有依据的定义预转换为 rad/m 并记录过程；当前 reference-check 导出映射要求 raw/reference 都已采用 SI 坐标，不直接接受原始计数或电角度。</li>
+<li>用工装/装配基准定义参考姿态 q=0，记录照片、基准、负载、接近方向。零位不能只靠“目测摆正”。如果没有合适工装，也可选择可重复测量的非零参考位置，明确其 q 值。</li>
+<li>在已确认工作区内，用独立输出端装置测 reference，同时记录控制器 raw；采多个不同位置，并从正反方向重复。独立验证集另采，检查重复性、回差、断电重启后零位是否保持；是否重启由现场已有控制流程决定。</li>
+<li>用 <code>q_reference = scale × raw + offset</code> 拟合方向、比例和偏置。只在已知简单线性传动中，才可使用 <code>q_joint = sign × (theta_motor − theta_motor_ref) / ratio + q_ref</code>；非线性机构需匹配其真实传动模型。</li>
+<li>验证后导出反馈映射。若正反向误差或残差随位置变化明显，先查回差、传动非线性、编码器安装与参考测量，不能只加一个零偏掩盖问题。</li></ol>
+<pre>data/joint_reference_train.csv
+sample_id,joint,raw,reference
+# reference 的单位为 rad（旋转）或 m（直线）；实际 CSV 不写本注释
+
+data/joint_reference_validation.csv    # 另采数据
+data/joint_reference_train.yaml       # 仪器、单位、时钟与来源
+data/joint_reference_validation.yaml
+configs/joint_reference_acceptance.yaml
+
+bash 启动工具包.sh run --project projects/旭创现场项目 --revision R02 reference-fit
+bash 启动工具包.sh run --project projects/旭创现场项目 --revision R02 reference-check</pre>
+<p>先按结构流程生成对应 <code>models/nominal_R02/robot.urdf</code>。验证程序导出同目录的 <code>feedback_mapping.yaml</code>，再由 feedback 任务转换反馈；actuators 表用于记录装置与换算来源。不能同时在控制器、反馈映射和几何原点重复加入同一个零偏。</p>
+<p>比例/传动/偏置的公开实现依据：<a href="https://github.com/ros-controls/ros2_control/blob/jazzy/transmission_interface/include/transmission_interface/simple_transmission.hpp">ros2_control SimpleTransmission</a>。这是简单传动模型依据，不提供任意拼装关节的电机换相标定方法。</p></section>
+
+<section id="limits"><h2>4. 限位怎么测，精确值从哪里来</h2>
+<p>需要分别记录：<b>机械可能行程、正常工作范围、控制器软件边界、限位开关触发位置、触发后停止位置。</b>它们不是同一个数。本项目的目标先是确认可运行的工作范围，不是撞到机构损坏前找最大角度。</p>
+<ol><li>结合 CAD/实物干涉、线缆与管路、联动配置、部件行程、承载及制动能力，确定待验证的工作区间。没有整机厂家时，由项目机械和控制负责人建立这份依据。</li>
+<li>先完成输出关节参考换算，选择能满足容差的独立角度/位移参考；把上下界都表达在同一关节坐标、同一零位中。</li>
+<li>按项目已评估的速度、负载和接近方向，核对区间端点，记录 raw、独立 q、时间、端点定义、停止位置与重复结果。有开关时优先保存控制器锁存的触发位置，同时单独记录停稳位置；控制器不支持锁存则保留时间分辨率造成的不确定度。</li>
+<li>对多个接近方向和必要的联动配置复查；由机构、制动距离和测量不确定度确定工作裕量。没有适用于所有机器人的固定减几度规则。</li>
+<li>填入明确规格与容差后运行 limits。它只比较已有端点记录与规格、重复性，不搜索极限、不写硬件限位。</li></ol>
+<pre>data/limits.csv: joint,boundary,angle
+# boundary 为 lower 或 upper；角度统一 rad，直线轴为 m
+data/limits.yaml:
+  event_kind: operating_range_check
+  procedure_reference: data/raw/项目工作范围核对规程.pdf
+# 同文件还需保留模板中的 dataset_id、role、data_kind、units 等字段
+
+configs/limits.yaml: joints.关节名
+  lower, upper, kind, source, tolerance,
+  repeatability_peak_to_peak, minimum_repeats</pre>
+<p><code>operating_range_check</code> 用于已评估工作范围；有真实事件时另选 software_boundary 或 switch_latch。多个事件类型分数据文件运行。表里“360°”不能自动写成 continuous：需先确认多圈反馈、线缆和滑环等是否支持不限圈旋转。单轴上下界也不能完整表达多关节相互干涉的配置约束。</p>
+<p>事件位置和停稳位置差异的设备文档例子：<a href="https://infosys.beckhoff.com/content/1033/tf5200_homing/343674123.html">Beckhoff 回参考点过程</a>。这不是本机器人自动寻找限位的执行规程。</p></section>
+
+<section id="inertia"><h2>5. 质量、质心和惯性怎么得到</h2>
+<p><b>质量是多重；质心是重量分布的中心；惯性描述绕不同轴转动的难易程度。</b>URDF 的每一个动态刚体都需要对应的质量属性，电机转子经传动反映到关节的附加惯量另论。</p>
+<ol><li>先确定刚体范围：壳体、电机、减速器、电池、线缆、紧固件、传感器、工具分别属于哪个 link，避免漏算或重复算。载荷在模型中另有清晰定义。</li>
+<li>用量程与准确度适合的秤核对可测部件/组件质量；无法拆卸时可用装配前记录、可信部件资料和组件质量校核，不强制拆机。</li>
+<li>优先从包含内部件和材料的 CAD 导出每个刚体的 mass、COM、完整惯性张量，并用实际质量与 BOM 检查其可信程度。仅有外壳曲面、错误密度或组件总重时，不能宣称惯性已测得。</li>
+<li>确认 CAD 报告的参考点、坐标轴、单位及积惯量符号。需要时先用平行轴定理转到质心，再旋转到所填惯性坐标。惯性项不能只复制三个对角值。</li>
+<li>CAD 不足时，使用适用的质心/惯量测量夹具或可辨识的动态试验。自制悬摆等方法需明确工装质量、支撑和理论模型，不能靠一次称重生成可信惯性。</li></ol>
+<p>填主表 links 的 <code>mass, com_xyz, com_rpy, inertia, inertial_status, inertial_source</code>。本包 inertia 顺序为 <code>ixx iyy izz ixy ixz iyz</code>，单位 kg·m²，关于质心、指定惯性轴；主表长度用 m。检查正定与主惯量三角关系只是物理必要条件，不能证明它与实物一致。</p>
+<p><b>注意重量口径：</b>“某轴负载 3 kg”“组件总量 4 kg”“整臂 12 kg”不能当成三个 link 的质量相加。负载包括什么、组件是否互相包含，都应先确认。</p>
+<p>本地 <code>identify-dynamics</code> 在已知刚体惯性基础上拟合附加惯量、摩擦与偏置，<b>不是全部连杆质量/质心/惯性辨识器</b>。NVIDIA SysID 可针对所选后端和有足够信息的数据估计部分质量属性，仍需检查参数可辨识性及独立验证。</p>
+<p>官方依据：<a href="https://help.solidworks.com/2025/english/SolidWorks/sldworks/c_Mass_and_Section_Properties_Overview.htm?id=4.9.6">SOLIDWORKS 质量属性</a>、<a href="https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Adding-Physical-and-Collision-Properties-to-a-URDF-Model.html">ROS URDF 物理属性</a>、<a href="https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_sysid.html">NVIDIA 6.1 SysID</a>。</p></section>
+
+<section id="actuator"><h2>6. 执行器是什么，怎么测</h2>
+<p><b>执行器是让关节动起来的整条驱动链：</b>电机、减速器/丝杠/连杆传动、编码器、驱动器和控制器。六维力传感器属于测量设备。即使电机型号一样，减速比、负载、驱动模式、控制环和延迟不同，仿真参数也可能不同。</p>
+<ol><li>登记电机/驱动型号、传动形式与比值、编码器位置和单位、控制模式、控制环/前馈、有效速度/力矩等限制。优先读取现有配置与部件手册，不把所有项都重新试到极限。</li>
+<li>在已确认的范围和负载下记录项目设计的平滑动作，覆盖需要辨识的速度变化、反向和加速度；另外保留验证动作。工况和采样率需足以观察目标响应，不给所有机器人统一频率或幅值。</li>
+<li>保存实际到达被建模控制器的指令及其时间、q、dq、可信 ddq、有效力矩或原始电流、前馈、饱和、负载与控制模式。电流到输出关节力矩需要力矩常数、传动与效率等依据，不能直接把 A 当 N·m。</li>
+<li>若有隔离的 PD 力矩分量，可用本地 drives-fit 拟合候选力驱动增益。若只有总力矩，不能直接拿来拟合 PD；按实际控制架构选择 NVIDIA SysID 的命令—响应路线及其可观测参数。</li>
+<li>另采同工况验证：实际输入、初始状态、控制方式、负载和时间对齐后，比较 q/dq/必要的力矩，而不是每帧强制把仿真关节设成实测值。</li></ol>
+<p>本地动力学数据列：<code>sample_id,t,q:关节,dq:关节,ddq:关节,tau:关节</code>（每个独立关节均需对应列）；manifest 明确 <code>torque_semantics=joint_actuator_effort</code>。不要把位置粗糙二阶差分冒充可信加速度。</p>
+<p>驱动数据列：<code>joint,q,dq,q_command,dq_command,pd_effort,saturated</code>；只有确认是独立 PD 分量、匹配力驱动模型才能使用。真实驱动器 PID 数字不能直接复制成 PhysX stiffness/damping。</p>
+<p>装置定义填 actuators 表；Isaac 候选增益在 <code>isaac_drives_candidate.yaml</code> / <code>drives.关节.{type,stiffness,damping,max_effort}</code>。摩擦、附加惯量、延迟需要同一物理模型的适配实现，当前工具不把名字相近的字段随意写入。见 <a href="https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_sysid.html">NVIDIA SysID 6.1</a> 与 <a href="https://docs.isaacsim.omniverse.nvidia.com/6.1.0/robot_setup/ext_isaacsim_robot_setup_gain_tuner.html">Gain Tuner</a>。</p></section>
+
+<section id="contact"><h2>7. 接触怎么测</h2>
+<p>先指定<b>哪两个物体接触、材料/表面、载荷、滑速及目标现象</b>，例如夹爪指垫—工件、轮胎—现场地面。每个材料对分别测。腕部六维力只测其受力路径上的合力/力矩，不能直接替代轮地接触测量。</p>
+<p>先按所用传感器资料安装与采集，核对校准矩阵、量程、安装坐标、符号、时间；必要时去皮并补偿工具重力与运动惯性。传感器本体系的 Fz 不一定是接触法向力，需要转换到接触坐标。六维力数据不包含末端空间位姿。</p>
+<table><tr><th>待测项</th><th>工具与方法</th><th>数据与程序边界</th></tr>
+<tr><td>滑动摩擦</td><td>在已知法向载荷下，让材料对按项目工况相对滑动；测切向/法向力与相对滑速，覆盖适用载荷和速度。</td><td>稳态库仑近似为 μd≈|Ft|/Fn；有速度相关性时采用对应模型。本包支持滑动库仑+粘性模型；排除加速度惯性等非接触影响。</td></tr>
+<tr><td>静摩擦</td><td>可控地增加切向载荷，独立观察首次滑动，同时测法向和切向力。</td><td>临界比值只对应该材料/表面/载荷条件。本包滑动拟合<b>不输出静摩擦辨识结果</b>；需要另行记录与工程分析。</td></tr>
+<tr><td>法向柔顺</td><td>用力传感器与位移测量，记录加载/卸载及相应速度；区分试样变形、夹具和机器人自身柔顺。</td><td>仅在适用时用 F=kδ+c·δdot；本包支持线性近似。δ 是实际定义的压缩/变形，不自动等于仿真穿透量；滞回/非线性需另建模。</td></tr>
+<tr><td>恢复系数</td><td>若任务需要，用可控试样试验观察同一接触法向上的接触前后相对速度，同时说明材料、几何与负载。</td><td>近似 e=|v_after/v_before|；不要通过整机冲撞采数据。低速持握任务未必需要冲击辨识。</td></tr></table>
+<p>每种模型使用 <code>configs/contact.yaml</code> 选择的观测列，原始测力/位移/时间与材料说明放 data/raw，规范数据放 <code>data/contact_train.csv</code> 与来源 YAML。拟合以后另做验证数据，不用训练残差代替接触验证。</p>
+<p>Isaac 材料参数在 <code>configs/isaac.yaml</code> 的 materials：path、static_friction、dynamic_friction、restitution、collision_paths。实测通常是“材料对”的行为；PhysX 会按两个材质的组合规则计算有效接触值，不能把实测 μ 同时随意复制给两个材质。柔顺模型和后端不一致时，本包不自动写回。</p>
+<p>官方依据：<a href="https://nvidia-omniverse.github.io/PhysX/physx/5.4.1/docs/RigidBodyDynamics.html">PhysX 摩擦、恢复与柔顺接触</a>、<a href="https://nvidia-omniverse.github.io/PhysX/physx/5.1.0/_build/physx/latest/struct_px_combine_mode.html">PhysX 材质组合规则</a>。这些定义指导模型和数据解释，不能替代所用测力设备的校准规程。API 写回需核对实际 Isaac SDK 版本。</p></section>
+
+<section id="align"><h2>8. 测完如何与 URDF 对齐，改在哪里</h2>
+<p><b>对齐的是同一时刻、同一参考坐标、同一个刚性测量对象的位姿。</b>在基座与末端安装刚性靶标，测明安装变换。使用相机时按 OpenCV 标定内参与畸变、标定板尺寸和测量能力；相机不能通过同一个待标定 URDF 的 TF 生成“真值”。如果基座也在动，必须独立观察其位姿。</p>
+<pre>T_测量系_基座 × FK_URDF(q) × T_末端_靶标
+                对比
+          T_测量系_靶标（独立实测）</pre>
+<p>统一 m/rad、坐标方向、四元数 xyzw、测量时间与反馈换算。静态停稳姿态降低同步误差；动态轨迹需要独立验证时间关系。基座/工具/关节参数有耦合，先固定清晰基准，再只拟合有信息支撑的参数；不同时释放所有变量来追小残差。</p>
+<table><tr><th>发现的偏差</th><th>填写/应用位置</th><th>如何复验</th></tr>
+<tr><td>父子、自由度、轴、名义安装坐标</td><td>主表 joints：parent/child/type/origin_xyz/origin_rpy/axis；geometry、mechanisms 与约束配置</td><td>重建名义模型；实物运动核对；受影响链重新采集或拟合。</td></tr>
+<tr><td>反馈方向、比例、参考偏置</td><td>actuators 记录；reference-check 导出的 feedback_mapping.yaml 用于转换</td><td>另采独立角度/位移验证，覆盖实际使用范围。</td></tr>
+<tr><td>已选择的几何原点修正</td><td>apply 烘焙到修正 URDF 的 joint origin</td><td>holdout 与 verify-applied；不能再手工加入同一修正。</td></tr>
+<tr><td>运动学附加关节零偏</td><td>calibrated_版本/joint_offsets.yaml；offset-feedback 只读转换</td><td>验证最终模型与换算一起应用。硬件命令的逆映射需另由控制适配器验证。</td></tr>
+<tr><td>基座、工具坐标</td><td>scene_frames.yaml、isaac_applied.yaml；或对应的 TF/测量配置</td><td>核对靶标安装变换、坐标单位与最终场景，不重复写入。</td></tr>
+<tr><td>工作范围与质量属性</td><td>joints 的 lower/upper/velocity/effort；links 的 mass/com/inertia</td><td>端点记录与独立复验；惯性检查和匹配负载响应。</td></tr>
+<tr><td>驱动、材料、延迟等</td><td>Isaac 场景/配置及匹配物理模型的适配器；不全部塞进 URDF</td><td>用同输入、同负载、同初始状态的另采轨迹/接触试验比较。</td></tr></table>
+<p>程序支持数据核验和选定参数拟合，不自动识别任意机构/真实轴线、不自动补全未知惯性、不自动实现未知控制器，也不因为仿真模型能打开就认定标定完成。MuJoCo 打开和 FK 对比可验证软件模型链；旭创 Isaac 交付仍需对应场景与动态验证。</p>
+<pre># 在填写参数、数据、来源和阈值后，用新 revision 避免覆盖旧结果
+bash 启动工具包.sh run --project projects/旭创现场项目 --revision R02 structure
+bash 启动工具包.sh run --project projects/旭创现场项目 --revision R02 nominal
+# 反馈拟合/独立验证/换算后，生成同一坐标定义下的运动学数据
+bash 启动工具包.sh run --project projects/旭创现场项目 --revision R02 fit
+bash 启动工具包.sh run --project projects/旭创现场项目 --revision R02 holdout
+bash 启动工具包.sh apply --project projects/旭创现场项目 --revision R02
+bash 启动工具包.sh verify-applied --project projects/旭创现场项目 --revision R02
+# 质量惯性确认后再生成 Isaac 场景，详见完整手册</pre>
+<p>运动学 CSV：<code>sample_id,q:全部独立关节,x,y,z,qx,qy,qz,qw</code>；标定集 <code>kinematics_train.csv/yaml</code>，另采验证集 <code>kinematics_validation.csv/yaml</code>。不能将命令值、仿真回放或同一 FK 计算结果标作独立测量。</p>
+<p>相机算法原始依据：<a href="https://docs.opencv.org/4.13.0/df/d4a/tutorial_charuco_detection.html">OpenCV ChArUco</a>、<a href="https://docs.opencv.org/4.13.0/d5/d1f/calib3d_solvePnP.html">OpenCV solvePnP</a>；项目实现与版本边界见 <a href="sources.md">程序来源</a>。</p></section>
+
+<section id="handoff"><h2>9. 现场至少拿回什么，最后交付什么</h2>
+<ol><li><b>定义记录：</b>真实结构/驱动对应、完整 CAD/BOM、参考姿态与正方向、工作范围及条件、部件型号/资料/版本。已有值注明“设计声明/部件规格/现场实测”，不混为一种证据。</li>
+<li><b>原始采集：</b>反馈与实际输入、独立角度/位移、独立基座/末端位姿、质量属性、驱动与接触试验的原始文件；记录设备校准、安装、单位、时钟、负载、材料、运行工况和异常。</li>
+<li><b>独立验证：</b>标定和验证分别采；保留不同姿态、接近方向和所需工况，另做必要的重复测量。误差上限与测量能力在验收配置中明确；尚未规定的阈值保持待确认。</li>
+<li><b>可复现项目：</b>D01 参数和来源；D02 修正 URDF、网格、反馈映射、基座/工具坐标；D03 Isaac 资产、驱动/接触/约束配置及待实现项；D04 程序、数据、接口、版本与运行环境；D05 独立验证报告和误差；D06 现场操作、修改复验和部署说明。每项标明完成/未完成及适用范围，附版本与文件哈希。</li></ol>
+<p>先把工具包跑通不等于已有现场测量能力。没有独立输出参考与空间位姿测量时，可以先做资料、结构、接口、反馈记录和软件验证；不能据此交付毫米级物理精度证明。</p></section>
+
+<section id="sources"><h2>10. 官方、部件与原作者资料</h2>
+<p>文中链接均保留。补充链接用于了解工具；只有实际型号、装机配置和校准核对后，才能选为本机采集方法。</p>
+<ul><li><a href="https://www.heidenhain.com/products/encoders/angle-encoders">HEIDENHAIN 角度编码器</a>：了解输出端角度测量能力与安装条件；不代表本项目必须购买该品牌。</li>
+<li><a href="https://docs.optitrack.com/quick-start-guides/quick-start-guide-getting-started">OptiTrack 标定与采集入门</a>、<a href="https://docs.optitrack.com/motive/rigid-body-tracking">刚体六维跟踪</a>：了解独立基座与末端姿态测量。</li>
+<li><a href="https://www.realsenseai.com/product-family/d405-series/">RealSense D405 官方资料</a>：了解现有深度相机能力。深度精度、距离、靶标安装与最终六维位姿精度需分别检验。</li>
+<li><a href="http://www.automation-kw.com/">坤维传感器官方网站</a>：应取得匹配型号的用户手册与本传感器校准文件；网站链接不是装机标定证据。</li>
+<li><a href="https://docs.isaacsim.omniverse.nvidia.com/6.1.0/importer_exporter/ext_isaacsim_asset_importer_urdf.html">NVIDIA 6.1 URDF Importer</a>：模型导入；不能代替结构测量和物理精度验证。</li>
+<li><a href="https://mujoco.readthedocs.io/en/3.17.0/modeling.html#urdf-extensions">MuJoCo URDF 建模</a>：辅助模型加载和软件验证。</li></ul>
+<p>公开工具包：<a href="https://github.com/wangyuting824/robot-calibration-toolkit">https://github.com/wangyuting824/robot-calibration-toolkit</a>。原始 CAD、现场数据和本机配置保留在私有项目，通过约定渠道交付；本地 file:// 链接不供他人远程访问。</p>
+</section></html>
