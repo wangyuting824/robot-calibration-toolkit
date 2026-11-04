@@ -4,19 +4,21 @@
 
 ## 已实现接口
 
+单轴相对/绝对运动新增独立入口 `控制关节.sh` / `motion.py`，使用现有 ROS 2 `FollowJointTrajectory` action，或 MuJoCo 动力学仿真。支持角度/直线位移、完整关节组保持、动作记录及指定 UUID 取消。启动和配置见 [关节动作控制说明](关节动作控制说明.html)。原 ROS/OpenArm 采集适配器继续只读；新的控制入口不启用驱动或切换控制器。`run-test` 的逐点适配器契约仍独立，不能把 action 客户端假装成已接通的底层控制器。
+
 - ReplayAdapter：读取已存在 CSV。回放数据不代表对新命令产生的物理响应。
 - IsaacAdapter：默认检查并调用 NVIDIA 6.1.0 文档 API，只发送仿真位置目标并读取位置/速度。报告记录实际版本和构建信息。不会把广义关节约束力当作已分离的电机驱动力矩输出。
 - OpenArmReadOnlyAdapter：调用已安装官方 codec 做状态查询与原始电机反馈采集；无运动接口，左右/零位未经独立确认时保留为 motor telemetry。详见 [OpenArm 验证](openarm_validation.md)。
 - Ros2JointStateAdapter：只订阅已有控制器的 JointState，保留发布者与接收时间、原始反馈值以及空缺的可选字段；不创建命令发布者。配置、换算边界与 MuJoCo 核对见 [MuJoCo 测试说明](mujoco_validation.md)。
 - MappedJointStateAdapter：对 ROS 只读订阅或 CSV 回放应用有依据的坐标换算，保留原始值；独立验证、候选限制与配置见 [反馈对齐说明](joint_feedback_alignment.md)。
 
-## 厂家 SDK 适配器
+## 项目或部件 SDK 适配器
 
 RobotAdapter 和 MetrologyAdapter 是待接入接口。它们在未实现时明确抛出 InputError，不能假装已读取或执行硬件。
 
 真实机器人执行适配器需要：
 
-1. 根据厂家 SDK 实现 read_state、command、stop、close。
+1. 根据实际控制接口或部件 SDK 实现 read_state、command、stop、close；不要求存在整机厂家。
 2. capabilities 明确声明 read_state、command、watchdog、stop。
 3. 配置 operating_procedure（适用的项目调试/试验规程）、procedure_owner、commissioning_reference、limits_confirmed 和起点容差。拼装整机由项目建立规程，不要求存在整机厂家。旧 manufacturer_procedure 仅作兼容。
 4. 保证反馈与命令使用同一套 SI 关节坐标，正确应用反馈换算和零偏，命令执行逆换算。

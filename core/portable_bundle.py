@@ -10,7 +10,7 @@ import tarfile
 from core.io import InputError, sha256
 
 SOURCE_DIRS = ("core", "programs", "adapters", "configs", "templates", "examples", "docs", "tests", ".github")
-SOURCE_FILES = ("field.py", "run.py", "pyproject.toml", "README.md", "LICENSE", "启动工具包.sh", "离线使用先读.html")
+SOURCE_FILES = ("field.py", "run.py", "motion.py", "pyproject.toml", "README.md", "LICENSE", "启动工具包.sh", "控制关节.sh", "离线使用先读.html")
 
 
 def allowed(path):
@@ -39,6 +39,8 @@ def build_bundle(root, destination, project=None):
         shutil.copytree(project, destination/"projects"/project.name,
                         ignore=lambda p, names: [n for n in names if n == ".machine.json" or n == "__pycache__"])
     (destination/"启动工具包.sh").chmod(0o755)
+    if (destination/"控制关节.sh").is_file():
+        (destination/"控制关节.sh").chmod(0o755)
     manifest = {"schema_version": 1, "created_utc": datetime.now(timezone.utc).isoformat(),
         "target": "Ubuntu Linux x86_64; runtime and wheels included; Isaac/ROS/manufacturer drivers external",
         "private_project_included": bool(project), "files": [], "symlinks": []}

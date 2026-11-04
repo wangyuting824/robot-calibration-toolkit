@@ -8,6 +8,16 @@
 
 ## 不依赖 Codex 的现场使用
 
+单轴动作新增 [启动、移动与停止说明](docs/关节动作控制说明.html)：`bash 控制关节.sh move --config 配置.yaml --joint 关节名 --delta-deg 角度 --duration 秒数 --execute`；支持绝对角度和直线位移。真机使用现有 ROS 2 FollowJointTrajectory 控制器，先核对反馈/命令坐标、运行范围和停止行为；不会自动使能或猜测旭创底层驱动。也可用 `bash 启动工具包.sh motion ...`。
+
+无需硬件的可执行示例：
+
+```bash
+bash 控制关节.sh demo --destination /tmp/robotcal_motion_demo
+bash 控制关节.sh move --config /tmp/robotcal_motion_demo/mujoco.yaml --joint joint1 --delta-deg 5 --duration 2 --execute
+# 加 --viewer 打开MuJoCo；去掉 --execute 只预览。
+```
+
 完整流程、测量工具、字段、单位、修改和复验位置见 [现场操作手册](docs/现场操作手册.html)（[PDF](docs/现场操作手册.pdf)）；完整的 15 类参数、11 类工具及 D01—D06 对应见 [现场参数与工具总表](docs/现场参数与工具总表.xlsx)。所有 23 条原 CLI 保留。
 
 零位、限位、惯性、执行器、接触和机构的实际测量步骤，以及测完后改哪里，先读 [拼装机器人：参数怎么测、URDF怎么改](docs/拼装机器人参数测量与URDF修改.html)（[PDF](docs/拼装机器人参数测量与URDF修改.pdf)）。

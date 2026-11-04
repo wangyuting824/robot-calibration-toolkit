@@ -1,5 +1,13 @@
 verified_date: '2026-11-03'
 sources:
+  ROS_TRAJECTORY_ACTION:
+    authority: ros2_control official controller documentation and control_msgs
+    url: https://control.ros.org/jazzy/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html
+    scope: FollowJointTrajectory goals, complete joint lists, tolerances, results; no automatic hardware driver commissioning
+  ROS_CANCEL_GOAL:
+    authority: ROS 2 official action_msgs, Jazzy branch
+    url: https://github.com/ros2/rcl_interfaces/blob/jazzy/action_msgs/srv/CancelGoal.srv
+    scope: Nonzero goal UUID cancellation, acknowledgement versus terminal result; not a hardware emergency stop
   ROS_TRANSMISSION:
     authority: ros2_control official source, Jazzy branch
     url: https://github.com/ros-controls/ros2_control/blob/jazzy/transmission_interface/include/transmission_interface/simple_transmission.hpp
@@ -109,6 +117,7 @@ sources:
     url: https://infosys.beckhoff.com/content/1033/tf5200_homing/343674123.html?id=1788924359209060089
     scope: Event latching vs stopping position; cannot substitute for the applicable project operating procedure
 programs:
+  motion-control: {kind: project_quintic_planner_and_official_ROS_action_client_with_MuJoCo_simulation, sources: [ROS_TRAJECTORY_ACTION, ROS_CANCEL_GOAL, ROS_JOINT_STATE, MUJOCO_PYTHON, ROS_URDF]}
   check-openarm: {kind: project_transport_diagnostic_with_documented_state_query, sources: [OPENARM_CAN, LINUX_SOCKETCAN]}
   validate-runtime-kinematics: {kind: project_simulation_only_FK_comparison, sources: [NVIDIA_ARTICULATION, NVIDIA_STEPPING, ROS_URDF]}
   preflight: {kind: project_workflow, sources: []}

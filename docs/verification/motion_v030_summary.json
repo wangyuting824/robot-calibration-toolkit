@@ -1,0 +1,118 @@
+{
+  "version": "0.3.0",
+  "date": "2026-11-04",
+  "scope": "Single-axis relative/absolute motion, ROS 2 FollowJointTrajectory client, owned-goal cancellation and MuJoCo physical stepping",
+  "pytest": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "140",
+    "time": "8.397",
+    "timestamp": "2026-11-04T15:49:48.087783+08:00"
+  },
+  "ros_protocol": {
+    "status": "passed",
+    "cases": [
+      {
+        "case": "preview",
+        "status": "planned",
+        "passed": true
+      },
+      {
+        "case": "normal",
+        "status": "completed",
+        "passed": true
+      },
+      {
+        "case": "reject",
+        "status": "failed",
+        "passed": true
+      },
+      {
+        "case": "abort",
+        "status": "failed",
+        "passed": true
+      },
+      {
+        "case": "stale",
+        "status": "failed",
+        "passed": true
+      },
+      {
+        "case": "hold-drift",
+        "status": "failed",
+        "passed": true
+      },
+      {
+        "case": "interrupt",
+        "status": "interrupted",
+        "passed": true
+      },
+      {
+        "case": "cancel",
+        "status": "stopped",
+        "passed": true
+      }
+    ],
+    "hardware_accessed": false,
+    "domain": 221,
+    "localhost_only": true,
+    "qualification": "Real ROS transport and cancellation protocol; ideal fixture, not dynamics or hardware validation"
+  },
+  "mujoco": [
+    {
+      "case": "mujoco_move_01",
+      "status": "completed",
+      "errors_si": {
+        "joint1": 3.1451019401163016e-05,
+        "joint2": -5.879270681408144e-11,
+        "slider": -1.7392632993551427e-10
+      },
+      "hardware_control_commands_sent": false
+    },
+    {
+      "case": "mujoco_slider_01",
+      "status": "completed",
+      "errors_si": {
+        "joint1": 0.0,
+        "joint2": 0.0,
+        "slider": 4.7578035204144664e-07
+      },
+      "hardware_control_commands_sent": false
+    },
+    {
+      "case": "mujoco_absolute_01",
+      "status": "completed",
+      "errors_si": {
+        "joint1": -6.749123133170665e-05,
+        "joint2": -2.7073755737294647e-10,
+        "slider": -8.00922649382696e-10
+      },
+      "hardware_control_commands_sent": false
+    },
+    {
+      "case": "unified_offline_check",
+      "status": "completed",
+      "errors_si": {
+        "joint1": 3.1451019401163016e-05,
+        "joint2": -5.879270681408144e-11,
+        "slider": -1.7392632993551427e-10
+      },
+      "hardware_control_commands_sent": false
+    }
+  ],
+  "physical_robot_motion_executed": false,
+  "isaac_runtime_retested": false,
+  "limitations": [
+    "Requires an existing commissioned ROS 2 FollowJointTrajectory controller for real motion",
+    "Actual Xuchuang interface, joint mapping and operating bounds are not confirmed",
+    "ROS 1 and proprietary direct motor protocols require a matching adapter",
+    "Cancellation is not a hardware emergency stop; loss of feedback can leave stop unconfirmed"
+  ],
+  "deployment_entrypoints": [
+    "控制关节.sh",
+    "启动工具包.sh motion",
+    "motion.py"
+  ]
+}

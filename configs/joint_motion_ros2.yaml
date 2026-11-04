@@ -1,0 +1,40 @@
+schema_version: 1
+backend: ros2
+target: real
+robot_id: null
+# 所有文件路径相对本配置；不使用现有测试URDF参数直接驱动未知实机。
+urdf: null
+coordinates_id: null
+confirmed:
+  model_and_joint_mapping: false
+  operating_limits: false
+  control_and_stop: false
+operating_procedure: null
+commissioning_reference: null
+motion_scope_reference: null
+cancel_behavior_reference: null
+exclusive_control_reference: null
+
+# inspect可先查询图；实际名称从现有控制器获取，不猜节点或CAN协议。
+joint_state_topic: /joint_states
+state_publisher_node: null
+action_name: null
+action_server_node: null
+controller_joints: [] # 此控制器完整、有序的关节列表，不只填要移动的轴。
+limits: {}
+# limits.实际关节名 的全部字段；SI单位(rad/m、rad/s或m/s)：
+# lower, upper, max_velocity, max_acceleration,
+# path_tolerance, goal_tolerance, hold_tolerance, start_tolerance,
+# stopped_velocity_tolerance, source
+# 每轴填写，包括保持不动的轴；continuous也填写本次允许的多圈工作区。
+
+# 以下是通信与采集等待设置，不是机器人速度/加速度/力矩参数。
+state_timeout_s: 5
+max_state_age_s: 0.3
+max_timestamp_skew_s: 0.5
+server_timeout_s: 3
+goal_time_tolerance_s: 3
+cancel_timeout_s: 5
+settle_s: 0.3
+point_interval_s: 0.05
+lead_time_s: 0.3

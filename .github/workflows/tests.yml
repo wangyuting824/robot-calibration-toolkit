@@ -27,4 +27,18 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -e '.[test,mujoco]'
-      - run: python -m pytest -q tests/test_mujoco_and_ros_state.py
+      - run: python -m pytest -q tests/test_mujoco_and_ros_state.py tests/test_joint_motion.py
+  ros-motion:
+    runs-on: ubuntu-latest
+    container: ros:jazzy-ros-base
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install official ROS action messages
+        run: |
+          apt-get update
+          apt-get install -y ros-jazzy-control-msgs python3-yaml
+      - name: Exercise isolated ROS action transport and cancellation
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          python3 examples/verify_motion_ros2.py --destination /tmp/robotcal-ros-motion

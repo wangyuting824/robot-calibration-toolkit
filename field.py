@@ -15,6 +15,8 @@ if os.environ.get("ROBOTCAL_DISABLE_NETWORK") == "1":
 def parser():
     p = argparse.ArgumentParser(description="现场标定工具：不需要 Codex；先 doctor，再 init/status/run。")
     sub = p.add_subparsers(dest="action")
+    m = sub.add_parser("motion", help="关节动作：inspect/move/stop/demo；见控制关节.sh --help")
+    m.add_argument("motion_args", nargs=argparse.REMAINDER)
     d = sub.add_parser("doctor", help="检查本机环境及可选 SDK，不启动机器人")
     d.add_argument("--project")
     d.add_argument("--output")
@@ -58,6 +60,10 @@ def parser():
 
 
 def main(argv=None):
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments and arguments[0] == "motion":
+        from core.motion_cli import main as motion_main
+        return motion_main(arguments[1:])
     p = parser()
     a = p.parse_args(argv)
     if not a.action:

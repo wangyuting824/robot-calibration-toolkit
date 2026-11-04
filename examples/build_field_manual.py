@@ -146,6 +146,13 @@ bash 启动工具包.sh run --project projects/旭创现场项目 --revision R02
 <pre>bash 启动工具包.sh offset-feedback --project projects/旭创现场项目</pre>
 <p>反馈映射仍绑定其原验证模型；重建后不能手改模型哈希“重新绑定”。可先按原映射获得拟合输入 q，再加本次运动学 offset；或对最终模型重新做独立参考验证。命令方向的逆关系应由本机控制适配器实现并验证：q_拟合输入=q_model−offset，raw=(q_拟合输入−反馈零位偏置)/scale。本包现场入口不自动写控制器、更新硬件限位或使能电机。</p>
 <p>URDF 不标准化表达完整执行器模型、控制延迟、接触材质和所有闭环；这些内容在 D03 场景/配置与适配器中交付。未实现的物理模型不能因为 URDF 能打开就标为完成。</p>''')
+    section('control','8A　指定某个轴移动多少角度', '''
+<p>新增 <a href="关节动作控制说明.html">关节动作控制说明</a>（<a href="关节动作控制说明.pdf">PDF</a>）：支持相对角度、绝对角度和直线位移，包含完整配置、真实反馈检查、取消与停止核对。它使用现有 ROS 2 FollowJointTrajectory 控制器，或 MuJoCo 仿真；不会自动启动未知底层驱动、使能、回零或切换控制器。旭创真实运动接口仍需现场核实。</p>
+<pre>bash 控制关节.sh demo --destination /tmp/robotcal_motion_demo
+bash 控制关节.sh move --config /tmp/robotcal_motion_demo/mujoco.yaml --joint joint1 --delta-deg 5 --duration 2 --execute
+# 有桌面环境可加 --viewer；去掉 --execute 只预览。
+# 统一入口也可使用：bash 启动工具包.sh motion ...</pre>
+<p>真实项目复制并填写 configs/joint_motion_ros2.yaml。控制器全组关节从实际位置保持，仅选定轴运动；所有运行范围和坐标需有依据，不把测试默认值作为装机参数。新增入口独立于原23条CLI和只读采集适配器，纳入D04程序及D05执行验证。</p>''')
     section('sim','9　Isaac与MuJoCo怎么运行，动力学怎么复验', '''
 <p><b>Isaac另装：</b>离线工具包没有捆绑 NVIDIA GPU 驱动、Isaac Sim 21GB级SDK、ROS 或厂家 SDK。实际电脑需先按 NVIDIA 官方 6.1 要求安装并启动验证。6.1 pip版要求 Python3.12、Linux GLIBC2.35+；不要把本包科学计算环境覆盖进 SDK 的已验证依赖环境。当前电脑曾验证 6.1.0-rc.26，不能据此宣称未知园区电脑或所有6.1发行版已经验证。</p>
 <p>本机配置单独写在项目 <code>.machine.json</code>，例 <code>{"isaac_python":"/实际安装位置/python.sh"}</code>，pip环境则填该环境bin/python。只有这份本机设置允许绝对路径；搬电脑后只改它。额外 openpyxl 等依赖用该 SDK 的 Python 安装；可从 wheelhouse 离线安装 openpyxl/PyYAML/et-xmlfile，勿无差别升级 SDK 的 NumPy/SciPy。Isaac 许可由实际用户按官方要求接受，本程序不替用户接受许可。</p>
@@ -204,6 +211,9 @@ bash 启动工具包.sh backup --project projects/旭创现场项目 --destinati
     for code,ref in catalog['references'].items():
         refs.append('<li id="'+h(code)+'"><b>'+h(code)+' '+h(ref['owner'])+'</b>：<a href="'+h(ref['url'],quote=True)+'">'+h(ref['title'])+'</a><br><small>'+h(ref['scope'])+'</small></li>')
     extras=[
+        ('关节动作：启动、移动与停止','关节动作控制说明.html'),
+        ('ROS2官方关节轨迹控制器','https://control.ros.org/jazzy/doc/ros2_controllers/joint_trajectory_controller/doc/userdoc.html'),
+        ('ROS2官方按UUID取消动作','https://github.com/ros2/rcl_interfaces/blob/jazzy/action_msgs/srv/CancelGoal.srv'),
         ('拼装机器人：参数怎么测、URDF怎么改','拼装机器人参数测量与URDF修改.html'),
         ('SOLIDWORKS质量、质心与惯性属性','https://help.solidworks.com/2025/english/SolidWorks/sldworks/c_Mass_and_Section_Properties_Overview.htm?id=4.9.6'),
         ('PhysX材质组合规则','https://nvidia-omniverse.github.io/PhysX/physx/5.1.0/_build/physx/latest/struct_px_combine_mode.html'),
@@ -220,9 +230,11 @@ bash 启动工具包.sh backup --project projects/旭创现场项目 --destinati
     css='''body{font:16px/1.75 "Noto Sans CJK SC","Microsoft YaHei",sans-serif;color:#18334b;max-width:1180px;margin:30px auto;padding:0 24px}h1,h2,h3{color:#123f68}h2{border-bottom:2px solid #d9e6ef;padding-top:26px}nav{background:#edf4fa;padding:16px;display:flex;flex-wrap:wrap;gap:8px 20px}a{color:#125cc1;overflow-wrap:anywhere}pre,code{font-family:monospace;background:#eef3f7}pre{padding:16px;white-space:pre-wrap;overflow-wrap:anywhere}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid #c9d7e1;padding:8px;min-width:80px;vertical-align:top;overflow-wrap:anywhere}th{background:#e3eef7}.scroll{overflow:auto}details{border:1px solid #dce4eb;padding:8px;margin:8px 0}small{color:#4e6070}@page{size:A4 landscape;margin:15mm}@media print{body{max-width:none;font-size:10px;line-height:1.5;margin:0;padding:0}table{font-size:8px}td,th{min-width:0;padding:4px}.scroll{overflow:visible}h2{break-before:page}nav,button,details{display:none}a{color:inherit}pre{font-size:9px}}'''
     css=css.replace('nav,button,details{display:none}','nav,button{display:none}details{display:block}')+'@media print{#start h2{break-before:auto}}'
     toc='<nav>'+''.join('<a href="#'+name+'">'+h(title)+'</a>' for name,title,_ in sections)+'</nav>'
-    content='<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>旭创URDF标定现场操作手册</title><style>'+css+'</style><h1>旭创 URDF 标定与仿真对齐<br>现场操作手册</h1><p>R4 · 2026-11-04 · 不依赖 Codex · Ubuntu x86_64 离线工具包</p><button onclick="window.print()">打印/另存PDF</button>'+toc+''.join('<section id="'+n+'"><h2>'+h(t)+'</h2>'+b+'</section>' for n,t,b in sections)+'</html>'
+    content='<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>旭创URDF标定现场操作手册</title><style>'+css+'</style><h1>旭创 URDF 标定与仿真对齐<br>现场操作手册</h1><p>R5 · v0.3.0 · 2026-11-04 · 不依赖 Codex · Ubuntu x86_64 离线工具包</p><button onclick="window.print()">打印/另存PDF</button>'+toc+''.join('<section id="'+n+'"><h2>'+h(t)+'</h2>'+b+'</section>' for n,t,b in sections)+'</html>'
     (ROOT/'docs/现场操作手册.html').write_text(content,encoding='utf-8')
     (ROOT/'离线使用先读.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>离线工具包</title><style>body{font:20px/1.8 sans-serif;max-width:900px;margin:50px auto}</style><h1>旭创 URDF 标定现场工具包</h1><p>完整解压到可写目录，不需要 Codex。先打开下面的手册，再运行自检。</p><p><a href="docs/现场操作手册.html">打开完整现场操作手册</a></p><p><a href="docs/现场参数与工具总表.xlsx">打开完整参数、工具和交付总表</a></p><pre>bash 启动工具包.sh doctor\nbash 启动工具包.sh status --project projects/旭创现场项目</pre><p>软件包包含离线Python和依赖；Isaac、GPU驱动、ROS与厂家SDK另装。本项目尚待旭创确认资料和实测，不代表已完成真机标定。</p></html>',encoding='utf-8')
+    start_page=ROOT/'离线使用先读.html'
+    start_page.write_text(start_page.read_text(encoding='utf-8').replace('<p><a href="docs/现场参数与工具总表.xlsx">', '<p><a href="docs/关节动作控制说明.html">指定关节移动多少角度：启动与操作</a></p><p><a href="docs/现场参数与工具总表.xlsx">'), encoding='utf-8')
     from openpyxl import Workbook
     from openpyxl.styles import Font,PatternFill,Alignment
     book=Workbook();book.remove(book.active)
